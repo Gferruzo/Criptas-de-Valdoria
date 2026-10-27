@@ -51,6 +51,7 @@ button{font-family:var(--body);font-weight:800;font-size:15px;letter-spacing:.04
 button.primary{background:var(--ember);color:#1a0f06;border-color:var(--ember)}
 button:disabled{opacity:.4;cursor:not-allowed}
 button:focus-visible,input:focus-visible{outline:2px solid var(--rune);outline-offset:2px}
+input.name{font-size:18px;width:12em;max-width:100%;padding:6px 10px;border-radius:4px;border:1px solid var(--line);background:var(--void);color:var(--bone);-webkit-user-select:text;user-select:text}
 input.code{font-family:var(--display);font-size:24px;letter-spacing:.2em;text-transform:uppercase;width:7.5em;max-width:100%;padding:6px 10px;border-radius:4px;border:1px solid var(--line);background:var(--void);color:var(--bone);-webkit-user-select:text;user-select:text}
 .bigcode{font-family:var(--display);font-size:56px;letter-spacing:.18em;color:var(--ember);line-height:1}
 .countdown{font-family:var(--display);font-size:24px;color:var(--ember)}
@@ -3949,7 +3950,8 @@ function renderScreen(force){let html='';
     </div>
     ${lobbyErr?`<p class="note err">${esc(lobbyErr)}</p>`:''}
     <div class="row"><button type="button" data-act="story">La historia de Valdoria</button><button type="button" data-act="backup">Respaldo de partida · exportar o importar</button></div>
-    <p class="note">${on?'Para jugar en línea, comparte este juego desde el menú Compartir de la página. Tus amigos necesitan una cuenta de Claude y abrir el mismo enlace.':'El modo en línea funciona cuando el juego está abierto en claude.ai. Aquí solo está disponible el modo en este dispositivo.'}</p>${saveNote}`}
+    ${on&&room.fb?`<div class="row"><label class="hint" for="fbName">Tu nombre para tus amigos</label><input id="fbName" class="name" maxlength="16" placeholder="Ej. Angel" autocomplete="off" value="${esc(fbNameShown)}"></div>`:''}
+    <p class="note">${on&&room.fb?'Para jugar en línea, pásales a tus amigos el enlace de esta página y el código de 4 letras. No necesitan cuenta.':on?'Para jugar en línea, comparte este juego desde el menú Compartir de la página. Tus amigos necesitan una cuenta de Claude y abrir el mismo enlace.':fbState==='cargando'?'Conectando el modo en línea…':fbState==='error'?'No se pudo conectar el modo en línea. Revisa tu internet y recarga la página. Mientras, puedes jugar en este dispositivo.':'El modo en línea funciona cuando el juego está abierto en claude.ai. Aquí solo está disponible el modo en este dispositivo.'}</p>${saveNote}`}
   else if(lobbyMode==='story'){
     html=`<h2>La historia de Valdoria</h2>${LORE_PLOT.map(t=>`<p class="lede">${esc(t)}</p>`).join('')}<p class="note">${esc(LORE_TOWN)}</p>
       <h2>Los héroes</h2><div class="lore">${CLASSES.map(C=>{const L=HERO_LORE[C.id];return `<div class="mode"><div><b style="color:${C.color}">${esc(L.nm)}</b> <span class="hint">· ${esc(C.name)}</span></div><div class="kicker">${esc(L.tag)}</div><p>${esc(L.txt)}</p></div>`}).join('')}</div>
@@ -4009,8 +4011,8 @@ function bkLoad(){let o;try{o=bkParse(bkDraft)}catch(e){bkArm=false;bkMsg='Eso n
   if(!bkArm){bkArm=true;bkMsg='Esto reemplaza el progreso actual. Presiona otra vez para confirmar.';bkErr=false;renderScreen(true);return}
   bkArm=false;try{persist('heroe1',sanitizeHero(o.heroe1));if(o.heroe2)persist('heroe2',sanitizeHero(o.heroe2));myCls=heroes.heroe1.cur;bkMsg='¡Listo! Respaldo cargado.';bkErr=false;bkDraft=''}
   catch(e){bkMsg='No se pudo cargar el respaldo.';bkErr=true}renderScreen(true)}
-screenEl.addEventListener('input',e=>{if(e.target.id==='bkText'){bkDraft=e.target.value;if(bkArm){bkArm=false;renderScreen(true)}}});
-screenEl.addEventListener('change',e=>{if(e.target.id!=='bkFileIn'||!e.target.files||!e.target.files[0])return;const f=e.target.files[0],rd=new FileReader();
+screenEl.addEventListener('input',e=>{if(e.target.id==='fbName'){fbName=e.target.value.trim().slice(0,16);try{localStorage.setItem('valdoria-nombre',fbName)}catch(x){}return}if(e.target.id==='bkText'){bkDraft=e.target.value;if(bkArm){bkArm=false;renderScreen(true)}}});
+screenEl.addEventListener('change',e=>{if(e.target.id==='fbName'){fbNameShown=fbName;return}if(e.target.id!=='bkFileIn'||!e.target.files||!e.target.files[0])return;const f=e.target.files[0],rd=new FileReader();
   rd.onload=()=>{bkDraft=String(rd.result||'');bkArm=false;bkMsg=`Archivo «${f.name}» listo. Presiona «Cargar respaldo».`;bkErr=false;renderScreen(true)};rd.onerror=()=>{bkMsg='No se pudo leer el archivo.';bkErr=true;renderScreen(true)};rd.readAsText(f)});
 function netHero(h){const e=encHero(h),bag=e.bag;e.bag=[];delete e.stash;e.chars=e.chars.map(c=>[c.lvl,c.xp,c.next,...c.st,c.pts,...c.pots,c.sk[0],c.sk[1],c.sk[2],c.act,...c.sk.slice(3)].map(b36).join('.')+'|'+c.w+'|'+c.a+'|'+(c.r||'')+'|'+(c.m||'')+'|'+(c.ev||[]).map(b36).join('.'));return {h:e,b:bag}}
 function unNetHero(h,b){if(!h||!Array.isArray(h.chars))return null;const o={...h,bag:Array.isArray(b)?b:[]};
@@ -4060,12 +4062,42 @@ function forceStartLocal(){if(lobbyMode!=='local'||!lobby.length)return;beginLoc
 function beginLocal(slots){startT=0;MODE='local';ctrls=slots.map(s=>newCtrl(s.src,s.slot));
   newWorld(slots.map(s=>({...s,hero:heroes['heroe'+(s.slot+1)]})));state='play';document.getElementById('lobby').hidden=true;showTouch(true);cv.focus()}
 
+// ---------- en línea fuera de Claude (GitHub Pages): salas sobre Firebase Realtime Database ----------
+// Imita la sala de Claude: join(nombre) → {presence, peers, connected, onPeers, leave}. Cada jugador escribe solo su nodo
+// rooms/<sala>/peers/<uid_pestaña>; la presencia viaja como texto JSON (Firebase borra arreglos vacíos y nulos).
+const FB_CFG={apiKey:"AIzaSyAjf4Dh8fY2kVzgUKqSDikSGikep0IsnlM",authDomain:"criptas-de-valdoria.firebaseapp.com",databaseURL:"https://criptas-de-valdoria-default-rtdb.firebaseio.com",projectId:"criptas-de-valdoria",storageBucket:"criptas-de-valdoria.firebasestorage.app",messagingSenderId:"377268491553",appId:"1:377268491553:web:b9c9ee6b97c788834cda60"};
+let fbName='',fbState='';try{fbName=localStorage.getItem('valdoria-nombre')||''}catch(e){}let fbNameShown=fbName;
+async function firebaseRoom(){const B='https://www.gstatic.com/firebasejs/10.12.2/';
+  const [A,U,D]=await Promise.all([import(B+'firebase-app.js'),import(B+'firebase-auth.js'),import(B+'firebase-database.js')]);
+  const app=A.initializeApp(FB_CFG),auth=U.getAuth(app);const uid=(await U.signInAnonymously(auth)).user.uid;
+  const db=D.getDatabase(app),tab=uid+'_'+Math.random().toString(36).slice(2,8),joined=new Set(),nameOf=new Map();let up=false;
+  D.onValue(D.ref(db,'.info/connected'),s=>{up=s.val()===true;if(up)for(const r of joined)r._arm()});
+  function join(name){return new Promise((res,rej)=>{
+    const base=D.ref(db,'rooms/'+name+'/peers'),me=D.child(base,tab);let cache=[],pres={},subs=[],errs=[],off=null,left=false,first=true;
+    const write=()=>D.set(me,{p:JSON.stringify(pres),u:uid,n:String(fbName||'').slice(0,16)});
+    const r={_arm(){if(left)return;D.onDisconnect(me).remove().catch(()=>{});write().catch(()=>{})},
+      presence(o){pres=o||{};if(left||!up)return Promise.resolve();return write()},
+      peers(){return cache},connected(){return up},
+      onPeers(cb,err){if(cb)subs.push(cb);if(err)errs.push(err)},
+      leave(){left=true;joined.delete(r);try{off&&off()}catch(e){}D.onDisconnect(me).cancel().catch(()=>{});return D.remove(me).catch(()=>{})}};
+    const to=setTimeout(()=>{if(first){first=false;left=true;try{off&&off()}catch(e){}rej(new Error('timeout'))}},12000);
+    off=D.onValue(base,snap=>{const v=snap.val()||{},out=[];
+      for(const k in v){const x=v[k]||{};let p={};try{p=JSON.parse(x.p||'{}')}catch(e){}if(x.u&&x.n)nameOf.set(x.u,x.n);out.push({peer:k,presence:p,by:x.u||null,sameTab:k===tab})}
+      if(!left&&!out.some(q=>q.sameTab))out.push({peer:tab,presence:pres,by:uid,sameTab:true});
+      cache=out;for(const f of subs)try{f(out)}catch(e){}
+      if(first){first=false;clearTimeout(to);res(r)}},
+      e=>{if(first){first=false;clearTimeout(to);rej(e);return}for(const f of errs)try{f({code:'fb',message:String(e)})}catch(x){}});
+    joined.add(r);D.onDisconnect(me).remove().catch(()=>{});write().catch(()=>{})})}
+  return {fb:true,uid,join,onPeers(){},names:ids=>{const o={};for(const id of ids)if(nameOf.has(id))o[id]={name:nameOf.get(id)};return o}}}
+async function startFirebase(){fbState='cargando';renderScreen(true);
+  try{const r=await firebaseRoom();if(!room){room=r;if(!userCap)userCap={profiles:async ids=>r.names(ids)}}fbState='ok'}catch(e){fbState='error'}renderScreen(true)}
+
 // ---------- en línea ----------
 (async()=>{try{room=window.claude&&window.claude.use?await window.claude.use('room'):null}catch(e){room=null}
   try{userCap=window.claude&&window.claude.use?await window.claude.use('user'):null}catch(e){userCap=null}
   if(room)try{room.onPeers(()=>{},()=>{})}catch(e){}
   try{dlCap=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){dlCap=null}
-  renderScreen(true);loadSaves()})();
+  renderScreen(true);loadSaves();if(!room)startFirebase()})();
 function hostPresence(){if(!groom)return null;const h=groom.peers().find(p=>(p.presence||{}).role==='host');return h?h.presence:null}
 function onlineList(){if(!groom)return[];if(lobbyMode==='onlineHost')return hostLobbyList();const hp=hostPresence();
   if(!hp)return[];if(Array.isArray(hp.lob))return hp.lob.map(a=>({peer:a[0],cls:clamp(a[1]|0,0,NCLS-1),ready:!!a[2],by:a[3]||null,lv:a[4]|0}));
