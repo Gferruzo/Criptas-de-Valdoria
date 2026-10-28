@@ -122,7 +122,7 @@ textarea.bk{width:100%;box-sizing:border-box;min-height:96px;resize:vertical;fon
   <div class="overlay" id="lobby">
     <div class="panel">
       <div>
-        <div class="kicker">Co-op · en una PC o en línea con amigos <span class="ver">v0.8</span></div>
+        <div class="kicker">Co-op · en una PC o en línea con amigos <span class="ver">v0.9</span></div>
         <h1>Criptas de Valdoria</h1>
         <p class="lede">Bajo el pueblo de Valdoria hay criptas que nunca terminan. Compren armas en la herrería, suban de nivel a sus héroes, bajen piso por piso con su mascota y levanten a quien caiga. Cada 5 pisos espera un guardián. El progreso se guarda solo.</p>
       </div>
@@ -148,7 +148,7 @@ textarea.bk{width:100%;box-sizing:border-box;min-height:96px;resize:vertical;fon
 
 <script>
 'use strict';
-/* Criptas de Valdoria · v0.8
+/* Criptas de Valdoria · v0.9 (mascotas más duras en el Abismo + equipo de mascota)
    ÍNDICE (busca el título entre signos =)
    utilidades · calidad gráfica · lienzo · entrada · datos · objetos · héroes guardados · logros · salas especiales
    guardado · estado · mapas · mundo · efectos · acciones · combate · mascotas · contenido extra · misiones
@@ -840,7 +840,7 @@ const NPET=PETS.length;
 const PTR=[{n:'Espíritu de fuego',d:'sus golpes queman',col:'#ff8a3c',t:180},{n:'Gólem de piedra',d:'doble de vida y atrae a los enemigos',col:'#8a8f98',t:180},
   {n:'Tesoro andante',d:'recoge oro y el oro te vale doble',col:'#f0d24a',t:240},{n:'Fuego fatuo',d:'ilumina mucho y dispara luces',col:'#8fe8ff',t:180},{n:'Forma de titán',d:'enorme y con daño x2.5',col:'#c56cff',t:120}];
 const petStage=l=>l>=PET_MAX?10:Math.floor(l/10);
-const petNext=l=>Math.round(60+5*Math.pow(l,1.65));
+const petNext=l=>Math.round((60+5*Math.pow(l,1.65))*(1+.06*Math.max(0,l-40)));  // v0.9: desde el nivel 40 cuesta más subir
 const petName=(sp,l)=>(PETS[sp]||PETS[0]).forms[petStage(l||1)];
 const treatCost=l=>Math.round(12+3*l);
 const RAR=[{n:'común',c:'#d4cdc0',m:1},{n:'mágico',c:'#6aa8f0',m:1.25},{n:'raro',c:'#f0d24a',m:1.55},{n:'único',c:'#ea8a3c',m:2},{n:'abisal',c:'#d84cff',m:2.6}];
@@ -1101,13 +1101,14 @@ function sleepTick(dt){G.slT=(G.slT||0)-dt;if(G.slT>0)return;G.slT=.25;if(!G.dor
   if(G.dormant.length){const wake=[];G.dormant=G.dormant.filter(e=>{if(near(e,WAKE)){wake.push(e);return false}return true});for(const e of wake)G.enemies.push(e)}
   const sl=[];G.enemies=G.enemies.filter(e=>{if(e.dead||e.arena||near(e,SLEEP))return true;sl.push(e);return false});for(const e of sl){e.aggro=false;e.kx=0;e.ky=0;G.dormant.push(e)}}
 
-const defaultHero=()=>({xs:newXs(),cb:0,hl:0,df:1,fm:0,scr:1,au:0,ac:sanAc(null),ttl:-1,dye:-1,ms:null,v:3,cur:0,gold:80,maxDepth:1,pets:PETS.map(()=>null),apet:0,legacy:0,bag:[],stash:[],chars:CLASSES.map(C=>defaultChar(C.i))});
+const defaultHero=()=>({xs:newXs(),cb:0,hl:0,df:1,fm:0,scr:1,au:0,ac:sanAc(null),ttl:-1,dye:-1,ms:null,v:3,cur:0,gold:80,maxDepth:1,pets:PETS.map(()=>null),apet:0,pg:[null,null,null],legacy:0,bag:[],stash:[],chars:CLASSES.map(C=>defaultChar(C.i))});
 function sanPots(v){if(Array.isArray(v))return [0,1,2,3].map(i=>clamp(v[i]|0,0,POTMAX));if(typeof v==='number')return [0,clamp(v|0,0,POTMAX),0,0];return [3,0,0,1]}
 function sanSk(v,act){const sk=Array.from({length:SKALL},(_,i)=>clamp((Array.isArray(v)?v[i]:0)|0,0,SKMAX));sk[0]=Math.max(1,sk[0]);let a=clamp(act|0,0,SKN-1);if(!sk[a])a=0;return {sk,act:a}}
 function sanitizeHero(h){const d=defaultHero();if(!h||typeof h!=='object')return d;
   d.cur=clamp(h.cur|0,0,NCLS-1);d.gold=clamp(Math.floor(num(h.gold,80)),0,1e9);d.maxDepth=clamp(h.maxDepth|0,1,9999);d.legacy=clamp(h.pet|0,0,999);d.mc=Array.isArray(h.mc)?h.mc.slice(0,MERC_MAX).filter(Array.isArray).map(a=>a.slice(0,4).map(v=>v|0)):[];d.ms=decMs(h.ms);
   d.cb=clamp(h.cb|0,0,99999);d.xs=sanXs(h.xs);d.hl=h.hl?1:0;d.df=h.df==null?1:clamp(h.df|0,0,3);d.fm=clamp(Math.floor(num(h.fm,0)),0,1e9);d.scr=h.scr==null?1:clamp(h.scr|0,0,5);d.au=clamp(h.au|0,0,(1<<ACH.length)-1);d.ac=sanAc(h.ac);d.ttl=clamp(h.ttl==null?-1:h.ttl|0,-1,ACH.length-1);d.dye=clamp(h.dye==null?-1:h.dye|0,-1,ACH.length-1);
   if(Array.isArray(h.pets)){h.pets.slice(0,NPET).forEach((q,k)=>{if(Array.isArray(q)&&q.length)d.pets[k]={l:clamp(q[0]|0,1,PET_MAX),x:clamp(num(q[1],0),0,1e9)};else if(q&&typeof q==='object'&&q.l)d.pets[k]={l:clamp(q.l|0,1,PET_MAX),x:clamp(num(q.x,0),0,1e9)}});d.apet=clamp(h.apet|0,0,NPET-1)}
+  d.pg=sanPg(h.pg);
   d.bag=stackGems((Array.isArray(h.bag)?h.bag:[]).map(decItem)).slice(0,BAG);d.stash=stackGems((Array.isArray(h.stash)?h.stash:[]).map(decItem)).slice(0,STASH);
   if(Array.isArray(h.chars))for(let k=0;k<NCLS;k++){const c=h.chars[k];if(!c||typeof c!=='object')continue;
     const lvl=clamp(c.lvl|0,1,999),S=sanSk(c.sk,c.act);d.chars[k]={lvl,xp:clamp(num(c.xp,0),0,1e12),next:clamp(num(c.next,60),1,1e15),
@@ -1116,8 +1117,18 @@ function sanitizeHero(h){const d=defaultHero();if(!h||typeof h!=='object')return
     if(d.chars[k].r&&d.chars[k].r.k!==2)d.chars[k].r=null;if(d.chars[k].m&&d.chars[k].m.k!==3)d.chars[k].m=null;
     if(d.chars[k].w.k!==0)d.chars[k].w=starterWeapon(k);if(d.chars[k].a.k!==1)d.chars[k].a=starterArmor(k);d.chars[k].w.ci=k}
   return d}
-const encHero=h=>({v:3,xs:sanXs(h.xs),cb:h.cb|0,hl:h.hl?1:0,df:h.df==null?1:h.df|0,cur:h.cur,gold:h.gold,maxDepth:h.maxDepth,pets:(h.pets||[]).map(q=>q?[q.l,R(q.x)]:0),apet:h.apet|0,pet:h.legacy|0,mc:h.mc||[],fm:h.fm|0,scr:h.scr==null?1:h.scr|0,au:h.au|0,ac:sanAc(h.ac),ttl:h.ttl==null?-1:h.ttl,dye:h.dye==null?-1:h.dye,ms:h.ms?encMs(h.ms):0,bag:h.bag.map(encItem),stash:(h.stash||[]).map(encItem),
+const encHero=h=>({v:3,xs:sanXs(h.xs),cb:h.cb|0,hl:h.hl?1:0,df:h.df==null?1:h.df|0,cur:h.cur,gold:h.gold,maxDepth:h.maxDepth,pets:(h.pets||[]).map(q=>q?[q.l,R(q.x)]:0),apet:h.apet|0,pet:h.legacy|0,mc:h.mc||[],fm:h.fm|0,scr:h.scr==null?1:h.scr|0,au:h.au|0,ac:sanAc(h.ac),ttl:h.ttl==null?-1:h.ttl,dye:h.dye==null?-1:h.dye,ms:h.ms?encMs(h.ms):0,bag:h.bag.map(encItem),stash:(h.stash||[]).map(encItem),pg:encPg(h.pg),
   chars:h.chars.map(c=>({lvl:c.lvl,xp:R(c.xp),next:c.next,st:c.st.slice(),pts:c.pts,pots:c.pots.slice(),sk:c.sk.slice(),act:c.act,w:encItem(c.w),a:encItem(c.a),r:c.r?encItem(c.r):0,m:c.m?encItem(c.m):0,ev:encEv(c.ev)}))});
+// equipo de la mascota (v0.9): 2 anillos y 1 amuleto, lo comparten todas las mascotas del héroe
+function sanPg(v){const o=[null,null,null];if(!Array.isArray(v))return o;for(let k=0;k<3;k++){const q=v[k];if(!q)continue;const it=typeof q==='object'&&!Array.isArray(q)&&q.k!=null?q:decItem(q);if(it&&it.k===(k<2?2:3))o[k]=it}return o}
+const encPg=g=>(g||[]).slice(0,3).map(it=>it?encItem(it):0);
+const pgOf=o=>o&&Array.isArray(o.pg)?o.pg:[null,null,null];
+const pgPow=o=>{const g=pgOf(o);return (g[0]?g[0].pow:0)+(g[1]?g[1].pow:0)};
+const pgCrit=o=>{const g=pgOf(o);return (g[0]?g[0].crit:0)+(g[1]?g[1].crit:0)};
+const pgLine=it=>!it?'':it.k===2?`+${R(it.pow*100)}% de daño · +${(it.crit*100).toFixed(1)}% de crítico`:`+${it.hp} de vida · ${R(petAmuRed(it)*100)}% menos daño`;
+const petAmuRed=a=>a?a.def/(a.def+150):0;
+// cuánto daño se ahorra la mascota: su etapa, el Abismo (cada nivel ayuda) y su amuleto
+function petRed(pt){const A=G?(abyOf(G.depth)||(G.depth>=ARENA_AT?7:0)):0,base=Math.min(.5,.03*(pt.stage|0)+.08*A);return 1-(1-base)*(1-petAmuRed(pgOf(pt.owner)[2]))}
 const encChar=c=>[c.lvl,R(c.xp),c.next,...c.st,c.pts,...c.pots,c.sk[0]|0,c.sk[1]|0,c.sk[2]|0,c.act,...c.sk.slice(3)];
 function decChar(c,w,a,k){c=Array.isArray(c)?c:[];const S=sanSk([c[12],c[13],c[14],...c.slice(16,16+SKALL-3)],c[15]);
   return {lvl:Math.max(1,c[0]|0),xp:num(c[1],0),next:num(c[2],60),st:[c[3]|0,c[4]|0,c[5]|0,c[6]|0],pts:c[7]|0,pots:sanPots([c[8],c[9],c[10],c[11]]),sk:S.sk,act:S.act,
@@ -1125,7 +1136,7 @@ function decChar(c,w,a,k){c=Array.isArray(c)?c:[];const S=sanSk([c[12],c[13],c[1
 function storeChar(p){p.chars[p.cls.i]={lvl:p.lvl,xp:p.xp,next:p.next,st:st(p).slice(),pts:p.pts,pots:p.pots.slice(),sk:p.sk.slice(),act:p.act,w:p.weapon,a:p.armor,r:p.ring||null,m:p.amu||null,ev:p.ev||newEv()}}
 function loadChar(p,k){const c=p.chars[k]||defaultChar(k);p.cls=CLASSES[k];p.lvl=c.lvl;p.xp=c.xp;p.next=c.next;p.st=c.st.slice();p.pts=c.pts;p.pots=c.pots.slice();
   p.sk=c.sk.slice();p.act=c.act;p.ev=c.ev||newEv();p.weapon=c.w;p.armor=c.a;p.ring=c.r||null;p.amu=c.m||null;recalc(p);p.hp=p.maxhp;p.mp=p.maxmp}
-function heroOf(p){storeChar(p);return {v:3,xs:sanXs(p.xs),cb:p.cb|0,hl:p.hl|0,df:p.df==null?1:p.df,cur:p.cls.i,gold:p.gold,maxDepth:p.maxD,pets:p.pets.map(q=>q?{l:q.l,x:q.x}:null),apet:p.apet,mc:encMercs(p),fm:p.fm|0,scr:p.scr|0,au:p.au|0,ac:sanAc(p.ac),ttl:p.ttl,dye:p.dye,ms:(p.ms||[]).map(m=>({...m})),bag:p.bag.slice(),stash:(p.stash||[]).slice(),chars:p.chars.map(c=>({...c,st:c.st.slice(),pots:c.pots.slice(),sk:c.sk.slice()}))}}
+function heroOf(p){storeChar(p);return {v:3,xs:sanXs(p.xs),cb:p.cb|0,hl:p.hl|0,df:p.df==null?1:p.df,cur:p.cls.i,gold:p.gold,maxDepth:p.maxD,pets:p.pets.map(q=>q?{l:q.l,x:q.x}:null),apet:p.apet,pg:(p.pg||[null,null,null]).slice(),mc:encMercs(p),fm:p.fm|0,scr:p.scr|0,au:p.au|0,ac:sanAc(p.ac),ttl:p.ttl,dye:p.dye,ms:(p.ms||[]).map(m=>({...m})),bag:p.bag.slice(),stash:(p.stash||[]).slice(),chars:p.chars.map(c=>({...c,st:c.st.slice(),pots:c.pots.slice(),sk:c.sk.slice()}))}}
 function charLevels(p){if(p.lvls)return p.lvls;return p.chars?p.chars.map((c,k)=>k===p.cls.i?p.lvl:c.lvl):CLASSES.map(()=>1)}
 const potTotal=p=>p.pots[0]+p.pots[1]+p.pots[2];
 const topLvl=p=>Math.max(p.lvl|0,...(charLevels(p)||[1]).map(v=>v|0));
@@ -1259,7 +1270,7 @@ function makePlayer(cls,slot,hero){const h=sanitizeHero(hero&&hero.chars&&hero.c
   const p={i:slot,cls:CLASSES[cls],x:0,y:0,r:11,face:0,hp:1,maxhp:1,mp:0,maxmp:1,lvl:1,xp:0,next:60,pots:[0,0,0,0],sk:[1,0,0],act:0,bf:{dmg:0,dmgT:0,spd:0,spdT:0,crit:0,critT:0,sh:0,shT:0},st:[0,0,0,0],pts:0,
     gold:h.gold,maxD:h.maxDepth,chars:h.chars,bag:h.bag,stash:h.stash,sold:0,weapon:null,armor:null,
     atkT:0,sklT:0,swingT:0,hurtT:0,down:false,rev:0,fish:null,near:null,spin:0,intent:null,peer:null,lc:null,lastCmd:0,goneT:0};
-  p.cb=h.cb|0;p.xs=sanXs(h.xs);p.hl=h.hl;p.df=h.df;p.pets=h.pets;p.apet=h.apet;p.ptr=null;p.mcSave=h.mc;p.fm=h.fm;p.scr=h.scr;p.au=h.au;p.ac=h.ac;p.ttl=h.ttl;p.dye=h.dye;p.rank=rankOf(p);p.ac.pm=Math.max(p.ac.pm|0,...h.pets.map(q=>q?q.l:0));p.ms=h.ms;ensureMs(p);
+  p.cb=h.cb|0;p.xs=sanXs(h.xs);p.hl=h.hl;p.df=h.df;p.pets=h.pets;p.apet=h.apet;p.pg=h.pg;p.ptr=null;p.mcSave=h.mc;p.fm=h.fm;p.scr=h.scr;p.au=h.au;p.ac=h.ac;p.ttl=h.ttl;p.dye=h.dye;p.rank=rankOf(p);p.ac.pm=Math.max(p.ac.pm|0,...h.pets.map(q=>q?q.l:0));p.ms=h.ms;ensureMs(p);
   if(!p.pets.some(Boolean)){const k=PET_STARTERS[slot%4];p.pets[k]={l:clamp(1+h.legacy,1,30),x:0};p.apet=k}else if(!p.pets[p.apet])p.apet=p.pets.findIndex(Boolean);
   p.pet={owner:p,x:0,y:0,r:9,hp:1,maxhp:1,deadT:0,atkT:0,face:0,away:0,awayGold:0,awayStore:0,abT:6,sp:p.apet,lvl:1,stage:0};
   loadChar(p,cls);petSync(p.pet);p.pet.hp=p.pet.maxhp;
@@ -1464,6 +1475,10 @@ function doAction(p,a){if(p&&Array.isArray(a)&&G.map&&(a[0]==='emo'||a[0]==='pin
     if((p.maxD||1)<P.req)return say(2,`Solo se deja adoptar por quien llegó al piso ${P.req}.`);
     if(p.gold<P.price)return say(2,`Son ${P.price} de oro.`);p.gold-=P.price;p.pets[k]={l:1,x:0};p.apet=k;petSync(p.pet);p.pet.hp=p.pet.maxhp;p.pet.deadT=0;p.pet.x=p.x;p.pet.y=p.y+14;
     say(2,`¡Cuida bien a tu ${P.forms[0].toLowerCase()}!`);burst(p.x,p.y,P.glow,16,140);toast(`J${p.i+1} adoptó ${P.una?'una':'un'} ${P.sp.toLowerCase()}. Las otras mascotas esperan en el corral.`,P.glow)}
+  else if(cmd==='pgear'){if(!town)return;const i=a[1]|0,it=p.bag[i];if(!it||(it.k!==2&&it.k!==3))return;if(!Array.isArray(p.pg))p.pg=[null,null,null];const g=p.pg;
+    let k=it.k===3?2:!g[0]?0:!g[1]?1:(g[0].pow<=g[1].pow?0:1);if(it.k===2&&a[2]!=null&&(a[2]|0)<2)k=a[2]|0;
+    const old=g[k];g[k]=it;it.j=undefined;if(old)p.bag[i]=old;else p.bag.splice(i,1);petSync(p.pet);say(2,`${petName(p.apet,p.pets[p.apet]?p.pets[p.apet].l:1)} lleva ${itemName(it)}.`);burst(p.pet.x,p.pet.y,RAR[it.rar].c,12,110)}
+  else if(cmd==='pgoff'){if(!town)return;const k=clamp(a[1]|0,0,2),g=p.pg;if(!g||!g[k])return;if(!bagRoom(p,g[k]))return say(2,'Tu bolsa está llena.');bagAdd(p,g[k]);g[k]=null;petSync(p.pet);say(2,'Listo, te lo devuelvo.')}
   else if(cmd==='ptreat'){if(!town)return;const n=(a[1]|0)===1?5:1,d=p.pets[p.apet];if(!d||d.l>=PET_MAX)return say(2,'Ya no puede crecer más.');
     const c=n===5?Math.round(treatCost(d.l)*4.5):treatCost(d.l);if(p.gold<c)return say(2,`Te faltan ${c-p.gold} de oro.`);p.gold-=c;
     const xp=Math.round(petNext(d.l)*(n===5?.25:.05));petXP(p,xp);say(2,n===5?'¡Qué banquete! Mira cómo crece.':'Le encantó el bocadillo.');burst(p.pet.x,p.pet.y,'#e8a0a8',10,90)}
@@ -1473,8 +1488,8 @@ function doAction(p,a){if(p&&Array.isArray(a)&&G.map&&(a[0]==='emo'||a[0]==='pin
     const sell=[],store=[],keep=[];let full=0;
     for(const it of p.bag){const kp=petKeep(p,it);
       if(kp){if(rem){if(free>0){free--;store.push(it)}else{full++;keep.push(it)}}else if(stashAdd(S,it))store.push(it);else{full++;keep.push(it)}}
-      else if(petWorse(p,it))sell.push(it);else keep.push(it)}
-    if(!sell.length&&!store.length)return ftext(p.x,p.y-26,full?'El cofre del pueblo está lleno':'Nada peor que tu equipo','#a59cb0',11);
+      else sell.push(it)}
+    if(!sell.length&&!store.length)return ftext(p.x,p.y-26,full?'El cofre del pueblo está lleno':'Tu bolsa está vacía','#a59cb0',11);
     p.bag.length=0;p.bag.push(...keep);if(rem)for(const it of store)net([8,p.i,encItem(it)]);
     pt.awayGold=sell.reduce((s,it)=>s+itemValue(it),0);pt.awayStore=store.length;pt.away=25;
     burst(pt.x,pt.y,pt.P.glow,14,120);const pl=n=>`${n} objeto${n>1?'s':''}`;
@@ -1533,6 +1548,14 @@ function killEnemy(e){if(e.T.reaper)return;
   else if(hasMod(20)&&!e.T.boss&&Math.random()<.08)G.loot.push({id:++G.eid,k:'key',x:e.x,y:e.y,t:0});
   if(e.sub){for(let i=0;i<3;i++)dropGold(e.x+rnd(-16,16),e.y+rnd(-16,16),ri(6,12)*(1+d*.4));for(const h of G.players)if(!h.merc)addFame(h,4)}
   mProg(q=>{if(q.t==='kill'&&q.e===e.type)q.c++;if(q.t==='champ'&&e.champ)q.c++;if(q.t==='boss'&&e.T.boss)q.c++});
+  // Coliseo: cada enemigo da UNA sola cosa: 75% experiencia, 23% oro, 2% gema (sin objetos, pociones ni llaves). Cada guardián deja 1 objeto raro o único en el cofre del pueblo de cada jugador
+  if(G.map&&G.map.colis){const u=Math.random();
+    if(u<.02){dropGem(e.x,e.y);ftext(e.x,e.y-e.r-12,'¡Gema!','#a96aff',15)}
+    else if(u<.25)dropGold(e.x,e.y,ri(2,6)*(1+d*.4)*(e.champ?3:1)*(e.T.boss?8:1));
+    else giveXP(Math.round(e.T.xp*(1+.12*(d-1))*(e.champ?2.5:1)*(e.xpM||1)));
+    if(e.T.boss){toast(`¡${bossName(e)} ha caído!`,'#ea8a3c');banner('Guardián vencido','Un objeto para cada uno en el cofre del pueblo',2.4);if(!RM)G.hs=Math.max(G.hs||0,.18);
+      const D=Math.max(1,G.depth);for(const h of G.players){if(h.merc)continue;const k=pick([0,0,1,1,2,3]),it=makeItem(k,Math.random()<.3?3:2,D,1.3,Math.floor(Math.random()*1e9),h.cls.i);
+        if(isRemote(h))net([8,h.i,encItem(it)]);else stashAdd(stashOf(h),it,true);toast(`J${h.i+1}: ${itemName(it)} (${RAR[it.rar].n}) quedó en el cofre del pueblo`,RAR[it.rar].c)}}return}
   if(e.T.mimic){for(let i=0;i<5;i++)dropGold(e.x+rnd(-18,18),e.y+rnd(-18,18),ri(6,12)*(1+d*.4)*(mstk(13,1.5)));dropItem(e.x,e.y,2);if(hasMod(13)&&Math.random()<.5)dropGem(e.x,e.y)}
   giveXP(Math.round(e.T.xp*(1+.12*(d-1))*(e.champ?2.5:1)*(e.xpM||1)));
   if(Math.random()<.6)dropGold(e.x,e.y,ri(2,6)*(1+d*.4)*(e.champ?3:1));
@@ -1563,8 +1586,8 @@ function hurtPlayer(p,d,src){if(p.down||p.invT>0)return;if(p.rollT>0){if(!(p.dod
   if(d>p.maxhp*.15&&!RM&&ctrls.some(c=>c.slot===p.i))G.hs=Math.max(G.hs||0,.06);
   if(p.hp<=0)knockDown(p)}
 function hurtAlly(q,d,src){if(q.cls&&isOff(q))return;if(q.cls)hurtPlayer(q,d,src);else if(q.minion){q.hp-=d}else hurtPet(q,d)}
-function hurtPet(pt,d){if(pt.deadT>0)return;pt.hp-=d;
-  if(pt.hp<=0){pt.deadT=20;burst(pt.x,pt.y,pt.P?pt.P.glow:'#a59cb0',10);toast(`${petName(pt.sp,pt.lvl)} de J${pt.owner.i+1} se retiró herido. Vuelve en 20 s.`,'#a59cb0')}}
+function hurtPet(pt,d){if(pt.deadT>0)return;d*=1-petRed(pt);if(pt.ret)d*=.5;pt.hp-=d;
+  if(pt.hp<=0){pt.ret=0;pt.deadT=20;burst(pt.x,pt.y,pt.P?pt.P.glow:'#a59cb0',10);toast(`${petName(pt.sp,pt.lvl)} de J${pt.owner.i+1} se retiró herido. Vuelve en 20 s.`,'#a59cb0')}}
 function shoot(o,x,y,ang,sp,dmg,opt){G.proj.push({owner:o,x,y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,dmg,r:opt.r||4,life:opt.life||1.4,pierce:opt.pierce||0,cc:opt.cc,hit:new Set(),src:o==='p'?curSrc:null,kind:opt.kind||'arrow',glow:opt.glow,aoe:opt.aoe||0,slow:opt.slow||0,from:opt.from||null,basic:!!opt.basic})}
 const projCol=b=>PROJ_COL[Math.max(0,PKIND.indexOf(b.kind))][b.owner==='p'?0:1];
 function attack(p){curSrc=p;try{attack0(p)}finally{curSrc=null}}
@@ -1630,9 +1653,9 @@ const petTrV=pt=>MODE==='client'?(pt.trv==null?-1:pt.trv):petTr(pt);
 function petSync(pt){const o=pt.owner;let sp=clamp(o.apet|0,0,NPET-1);if(!o.pets[sp]){sp=o.pets.findIndex(Boolean);if(sp<0){sp=0;o.pets[0]={l:1,x:0}}o.apet=sp}
   const P=PETS[sp],d=o.pets[sp],tr=petTr(pt),f=pt.maxhp>1?pt.hp/pt.maxhp:1;
   pt.sp=sp;pt.P=P;pt.lvl=d.l;pt.stage=petStage(d.l);pt.taunt=P.ro==='tank'||tr===1;
-  pt.maxhp=Math.round((45+13*d.l)*P.hp*(1+.05*pt.stage)*(tr===1?2:1)*(mstk(28,1.25)));pt.hp=clamp(Math.round(pt.maxhp*f),1,pt.maxhp);
+  const am=pgOf(o)[2];pt.maxhp=Math.round(((45+13*d.l)*P.hp*(1+.05*pt.stage)+(am?am.hp:0))*(tr===1?2:1)*(mstk(28,1.25)));pt.hp=clamp(Math.round(pt.maxhp*f),1,pt.maxhp);
   pt.r=clamp(8+pt.stage*.6,8,15)*(tr===4?1.4:1)}
-const petDmg=pt=>(4+1.5*pt.lvl+.6*pt.owner.lvl)*pt.P.dmg*(1+.06*pt.stage)*(petTr(pt)===4?2.5:1)*(1+pv(pt.owner,'pet'))*(mstk(10,1.5));
+const petDmg=pt=>(4+1.5*pt.lvl+.6*pt.owner.lvl)*pt.P.dmg*(1+.06*pt.stage)*(petTr(pt)===4?2.5:1)*(1+pv(pt.owner,'pet'))*(1+pgPow(pt.owner))*(mstk(10,1.5));
 function petXP(p,n){const d=p.pets&&p.pets[p.apet],pt=p.pet;if(!d||d.l>=PET_MAX||!(n>0))return;d.x+=n;let up=false,evo=false;
   while(d.l<PET_MAX&&d.x>=petNext(d.l)){d.x-=petNext(d.l);d.l++;up=true;if(d.l%10===0)evo=true}
   if(d.l>=PET_MAX)d.x=0;if(!up)return;acAdd(p,'pm',d.l,true);petSync(pt);pt.hp=pt.maxhp;const P=PETS[p.apet];
@@ -1645,14 +1668,16 @@ function goldPickup(L,bonusOwner){for(const q of G.players){const v=Math.round(L
   let s=`+${L.n} oro c/u`;if(bonusOwner){const b=Math.max(1,Math.round(L.n*.25));bonusOwner.gold+=b;s+=` · +${b} J${bonusOwner.i+1}`}
   ftext(L.x,L.y,s,'#f0d24a',11);L.taken=true}
 // únicos o mejores (y gemas): la mascota no los vende, los guarda en el cofre del pueblo
-function petKeep(p,it){return it.k===4||(it.k<=3&&it.rar>=3&&petWorse(p,it))}
+// la mascota guarda en el cofre las gemas y lo que tenga rareza igual o mayor a lo que llevas en ese lugar; vende todo lo demás (y lo marcado como basura)
+function petEqRar(p,it){const eq=it.k===0?(it.ci===p.cls.i?p.weapon:(p.chars[it.ci]&&p.chars[it.ci].w)):slotOf(p,it.k);return eq?eq.rar|0:-1}
+function petKeep(p,it){if(it.k===4)return true;if(it.j)return false;return it.k<=3&&(it.rar|0)>=petEqRar(p,it)}
 const psellA=p=>['psell',Math.max(0,STASH-stashOf(p).length)];
 function petWorse(p,it){if(it.k===4)return false;if(it.k===2)return !!p.ring&&it.pow<=p.ring.pow;if(it.k===3)return !!p.amu&&it.hp<=p.amu.hp;if(it.k===0){const eq=it.ci===p.cls.i?p.weapon:(p.chars[it.ci]&&p.chars[it.ci].w);if(!eq)return false;return it.pow*(1+.12*it.up[0])<=eq.pow*(1+.12*eq.up[0])}
   return aDef(it)<=aDef(p.armor)&&aHp(it)<=aHp(p.armor)}
 function petReturn(pt){const o=pt.owner;if(!(pt.away>0))return;pt.away=0;o.gold+=pt.awayGold;const ns=pt.awayStore|0;pt.awayStore=0;
   toast(`La mascota de J${o.i+1} volvió del pueblo: ${[pt.awayGold?`vendió por ${pt.awayGold} de oro`:'',ns?`guardó ${ns} objeto${ns>1?'s':''} en el cofre`:''].filter(Boolean).join(' y ')}.`,'#f0d24a');pt.x=o.x;pt.y=o.y+12;burst(pt.x,pt.y,'#f0d24a',14);pt.awayGold=0}
 function petHit(pt,e,mult){const P=pt.P,o=pt.owner,tr=petTr(pt),a=Math.atan2(e.y-pt.y,e.x-pt.x),d=petDmg(pt)*(mult||1)*rnd(.9,1.1);
-  const cc=P.ro==='crit'?.25+.01*pt.stage:.06,kb=P.ro==='tank'?150:60;
+  const cc=(P.ro==='crit'?.25+.01*pt.stage:.06)+pgCrit(o),kb=P.ro==='tank'?150:60;
   const list=P.ro==='brute'?G.enemies.filter(x=>!x.dead&&Math.hypot(x.x-pt.x,x.y-pt.y)<pt.r+x.r+30):[e];
   for(const t of list){const hp0=t.hp;hitEnemy(t,d,Math.cos(a)*kb,Math.sin(a)*kb,cc);if(t.T.prop)continue;
     if(P.ro==='fire'||tr===0){t.dotT=3;t.dotD=petDmg(pt)*.35}
@@ -1693,6 +1718,9 @@ function petStep(pt,dt,town){const o=pt.owner,P=pt.P||PETS[0];pt.atkT-=dt;pt.abT
   if(town){followOwner(pt,dt,sp);return}
   if(P.ro==='heal'){pt.hT=(pt.hT||0)-dt;if(pt.hT<=0){pt.hT=3;const f=.02+.003*pt.stage;
     for(const q of G.players)if(!q.down&&dist(q,pt)<170&&q.hp<q.maxhp){const v=Math.max(1,Math.round(q.maxhp*f));q.hp=Math.min(q.maxhp,q.hp+v)}}}
+  // v0.9: con poca vida se retira a tu lado, recibe la mitad de daño y se cura un poco antes de volver
+  if(!pt.ret&&pt.hp<pt.maxhp*.3&&!((pt.retCd||0)>G.t)){pt.ret=G.t+6;pt.retCd=G.t+16;ftext(pt.x,pt.y-20,'¡Se retira!','#a59cb0',12)}
+  if(pt.ret){pt.hp=Math.min(pt.maxhp,pt.hp+pt.maxhp*.07*dt);if(pt.hp>=pt.maxhp*.7||G.t>pt.ret){pt.ret=0;ftext(pt.x,pt.y-20,'¡De vuelta!','#9be08a',12)}else{followOwner(pt,dt,sp*1.2);return}}
   if(pt.lvl>=10&&pt.abT<=0){const ok=petAbility(pt);pt.abT=ok?Math.max(7,12-.3*pt.stage):1;if(ok){resonate(pt,pt.x,pt.y);for(const e of G.enemies)if(!e.dead&&Math.hypot(e.x-pt.x,e.y-pt.y)<300)petMark(e,o)}}
   if(hasMod(28)&&pt.hp<pt.maxhp)pt.hp=Math.min(pt.maxhp,pt.hp+pt.maxhp*.01*dt);
   if(P.ro==='gold'||tr===2){let gl=null,gd=180;for(const L of G.loot){if(L.taken||L.k!=='gold')continue;const d=Math.hypot(L.x-pt.x,L.y-pt.y);if(d<gd){gd=d;gl=L}}
@@ -2245,11 +2273,13 @@ function controllerStep(c){const p=ctrlPlayer(c);if(!p||!G.map)return;const I=in
         else if(I.atkP&&e.t<4&&evoReady(p)){if(e.t===0)m.pick=0;else ctrlAct(c,['evo'])}else if(I.potP&&e.t>0)m.rit=-1}
       if(I.invP){m.tab=(m.tab+1)%4;m.cur=m.tab===2?p.cls.i:0;m.pick=null;m.rit=null}if(I.sklP)c.menu=null}
     else if(m.type==='keeper'){
-      if(m.tab===1){const cols=m.cols||2;if(I.leftP)m.cur=Math.max(0,m.cur-1);if(I.rightP)m.cur=Math.min(NPET-1,m.cur+1);if(I.upP)m.cur=Math.max(0,m.cur-cols);if(I.downP)m.cur=Math.min(NPET-1,m.cur+cols);
+      if(m.tab===3){const L=pgRows(p),n=L.length;if(I.leftP||I.rightP){m.tab=I.rightP?0:2;m.cur=0}else{if(I.upP)m.cur=Math.max(0,m.cur-1);if(I.downP)m.cur=Math.min(n-1,m.cur+1);const q=L[m.cur];
+        if(q&&I.atkP)ctrlAct(c,q.slot!=null?['pgoff',q.slot]:['pgear',q.bi])}}
+      else if(m.tab===1){const cols=m.cols||2;if(I.leftP)m.cur=Math.max(0,m.cur-1);if(I.rightP)m.cur=Math.min(NPET-1,m.cur+1);if(I.upP)m.cur=Math.max(0,m.cur-cols);if(I.downP)m.cur=Math.min(NPET-1,m.cur+cols);
         if(I.atkP)ctrlAct(c,['padopt',m.cur])}
-      else{const n=m.tab===0?1:2;if(I.leftP||I.rightP){m.tab=(m.tab+(I.rightP?1:2))%3;m.cur=m.tab===1?p.apet:0}
+      else{const n=m.tab===0?1:2;if(I.leftP||I.rightP){m.tab=(m.tab+(I.rightP?1:3))%4;m.cur=m.tab===1?p.apet:0}
         else{if(I.upP)m.cur=Math.max(0,m.cur-1);if(I.downP)m.cur=Math.min(n-1,m.cur+1);if(I.atkP){if(m.tab===0)ctrlAct(c,['npc',2]);else ctrlAct(c,['ptreat',m.cur])}}}
-      if(I.invP){m.tab=(m.tab+1)%3;m.cur=m.tab===1?p.apet:0}if(I.sklP)c.menu=null}
+      if(I.invP){m.tab=(m.tab+1)%4;m.cur=m.tab===1?p.apet:0}if(I.sklP)c.menu=null}
     else if(m.type==='floor'){const mx=Math.max(1,G.maxDepth);if(I.leftP)m.val=Math.max(1,m.val-1);if(I.rightP)m.val=Math.min(mx,m.val+1);
       if(I.downP)m.val=Math.max(1,m.val-5);if(I.upP)m.val=Math.min(mx,m.val+5);
       if(I.potP)ctrlAct(c,['diff',nextDiff()]);if(I.rolP){ctrlAct(c,['weekly']);c.menu=null}if(I.atkP){ctrlAct(c,['floor',m.val]);c.menu=null}if(I.sklP||I.invP)c.menu=null}
@@ -2500,7 +2530,7 @@ function buildSnap(){trackGone();const now=performance.now();
   for(const x of en)x.o.snT=now;for(const x of lo)x.o.snT=now;
   return obj;}
 function buildDetails(slot){return {x:[G.endN|0,G.sumN|0,G.sumJ||''],o:G.players.filter(p=>p.i!==slot&&!p.merc).map(p=>[p.i,p.cls.i,encItem(p.weapon),encItem(p.armor),p.maxD|0,p.cb|0,sanXs(p.xs)]),d:G.players.filter(p=>p.i===slot).map(p=>[p.i,p.cls.i,p.gold,p.maxD,encPets(p),charLevels(p),
-  [p.lvl,R(p.xp),p.next,...st(p),p.pts,...p.pots,p.sk[0]|0,p.sk[1]|0,p.sk[2]|0,p.act,...Array.from({length:SKALL-3},(_,i)=>p.sk[3+i]|0)],encItem(p.weapon),encItem(p.armor),p.bag.map(encItem),p.sold,encMs(p.ms),encMercs(p),p.ring?encItem(p.ring):0,p.amu?encItem(p.amu):0,[p.fm|0,p.scr|0,p.au|0,p.ac||0,p.ttl,p.dye,p.hl|0,p.df==null?1:p.df,p.cb|0],encEv(p.ev),sanXs(p.xs)])}}
+  [p.lvl,R(p.xp),p.next,...st(p),p.pts,...p.pots,p.sk[0]|0,p.sk[1]|0,p.sk[2]|0,p.act,...Array.from({length:SKALL-3},(_,i)=>p.sk[3+i]|0)],encItem(p.weapon),encItem(p.armor),p.bag.map(encItem),p.sold,encMs(p.ms),encMercs(p),p.ring?encItem(p.ring):0,p.amu?encItem(p.amu):0,[p.fm|0,p.scr|0,p.au|0,p.ac||0,p.ttl,p.dye,p.hl|0,p.df==null?1:p.df,p.cb|0],encEv(p.ev),sanXs(p.xs),encPg(p.pg)])}}
 function maxSeq(c){let m=0;if(Array.isArray(c))for(const x of c)if(Array.isArray(x))m=Math.max(m,Number(x[0])||0);return m}
 function bindPeer(p,pr){const ps=pr.presence||{};p.peer=pr.peer;p.tk=String(ps.tk||'');p.by=pr.by||null;p.lc=null;p.lastCmd=maxSeq(ps.c);p.evAck=null;p.intent=null;p.off=0;delete lastDet[p.i]}
 function tagPlayers(){if(!groom)return;const map=new Map(groom.peers().map(x=>[x.peer,x]));for(const p of G.players){if(!p.peer)continue;const pr=map.get(p.peer);if(!pr)continue;
@@ -2581,8 +2611,8 @@ function clientDetails(d){if(!d||!Array.isArray(d.d))return;clientX(d.x);
     p.gold=a[2]|0;p.maxD=a[3]|0;const pd=decPets(a[4]);p.pets=pd.pets;p.apet=pd.apet;p.ptr=pd.ptr;p.lvls=(a[5]||[1,1,1,1]).map(v=>v|0);const c=a[6]||[];
     const dc=decChar(c,null,null,p.cls.i);p.xp=dc.xp;p.next=dc.next;p.st=dc.st;p.pts=dc.pts;p.sk=dc.sk;p.act=dc.act;
     p.weapon=decItem(a[7]);p.armor=decItem(a[8]);p.ring=a[13]?decItem(a[13]):null;p.amu=a[14]?decItem(a[14]):null;p.bag=(a[9]||[]).slice(0,BAG).map(decItem);p.sold=a[10]|0;p.ms=decMs(a[11])||p.ms;p.mcEnc=Array.isArray(a[12])?a[12]:[];
-    if(Array.isArray(a[15])){const x=a[15];p.fm=x[0]|0;p.scr=x[1]|0;p.au=x[2]|0;p.ac=sanAc(x[3]);p.ttl=x[4]==null?-1:x[4]|0;p.dye=x[5]==null?-1:x[5]|0;p.hl=x[6]|0;p.df=x[7]==null?1:x[7]|0;p.cb=x[8]|0;p.rank=rankOf(p)}if(Array.isArray(a[16]))p.ev=decEv(a[16]);if(Array.isArray(a[17]))p.xs=sanXs(a[17]);
-    if(ctrls[0]&&ctrls[0].slot===p.i){const h=heroes.heroe1;h.cur=p.cls.i;h.gold=p.gold;h.maxDepth=Math.max(h.maxDepth,p.maxD);if(p.pets.some(Boolean)){h.pets=p.pets.map(q=>q?{l:q.l,x:q.x}:null);h.apet=p.apet}h.bag=p.bag;h.ms=p.ms;h.mc=p.mcEnc||[];if(Array.isArray(a[15])){h.fm=p.fm;h.scr=p.scr;h.au=p.au;h.ac=p.ac;h.ttl=p.ttl;h.dye=p.dye;h.hl=Math.max(h.hl|0,p.hl|0);h.df=p.df;h.cb=Math.max(h.cb|0,p.cb|0)}
+    if(Array.isArray(a[15])){const x=a[15];p.fm=x[0]|0;p.scr=x[1]|0;p.au=x[2]|0;p.ac=sanAc(x[3]);p.ttl=x[4]==null?-1:x[4]|0;p.dye=x[5]==null?-1:x[5]|0;p.hl=x[6]|0;p.df=x[7]==null?1:x[7]|0;p.cb=x[8]|0;p.rank=rankOf(p)}if(Array.isArray(a[16]))p.ev=decEv(a[16]);if(Array.isArray(a[17]))p.xs=sanXs(a[17]);if(Array.isArray(a[18]))p.pg=sanPg(a[18]);
+    if(ctrls[0]&&ctrls[0].slot===p.i){const h=heroes.heroe1;h.cur=p.cls.i;h.gold=p.gold;h.maxDepth=Math.max(h.maxDepth,p.maxD);if(p.pets.some(Boolean)){h.pets=p.pets.map(q=>q?{l:q.l,x:q.x}:null);h.apet=p.apet}h.bag=p.bag;if(Array.isArray(a[18]))h.pg=p.pg;h.ms=p.ms;h.mc=p.mcEnc||[];if(Array.isArray(a[15])){h.fm=p.fm;h.scr=p.scr;h.au=p.au;h.ac=p.ac;h.ttl=p.ttl;h.dye=p.dye;h.hl=Math.max(h.hl|0,p.hl|0);h.df=p.df;h.cb=Math.max(h.cb|0,p.cb|0)}
       h.chars[p.cls.i]={...dc,w:p.weapon,a:p.armor,r:p.ring,m:p.amu,ev:p.ev||newEv()};if(Array.isArray(a[17]))h.xs=sanXs(p.xs);clientHeroReady=true}
   }catch(e){}}
   for(const a of Array.isArray(d.o)?d.o:[]){const p=G.players.find(q=>q.i===a[0]);if(!p||(a[1]|0)!==p.cls.i)continue;try{p.weapon=decItem(a[2]);p.armor=decItem(a[3]);p.maxD=a[4]|0;p.cb=a[5]|0;if(Array.isArray(a[6]))p.xs=sanXs(a[6])}catch(e){}}}
@@ -3426,7 +3456,7 @@ const TIPS={Brunilda:'Brunilda, la herrera: vende armas, armaduras y joyas, mejo
   chest:'El cofre del pueblo guarda objetos para todos tus héroes sin ocupar espacio en la bolsa.',
   dock:'En el muelle pescas solo: los peces dan oro y experiencia a tu mascota, y algunos la transforman.',
   wander:'Un mercader errante: vende cosas raras, pero solo en este piso.',
-  colis:'El Coliseo: una sala cerrada donde cada 15 s llega una oleada, cada vez más fuerte. Entras con tu mascota; los aventureros esperan afuera. Si juegan en grupo entran todos y salen más enemigos. Para entrar, todos se paran en la puerta.',
+  colis:'El Coliseo: una sala cerrada donde cada 15 s llega una oleada, cada vez más fuerte. Entras con tu mascota; los aventureros esperan afuera. Si juegan en grupo entran todos y salen más enemigos. Aquí cada enemigo da una sola cosa: casi siempre experiencia, a veces oro y rara vez una gema. Cada guardián (cada 5 oleadas) deja un objeto raro o único en el cofre del pueblo de cada uno. Para entrar, todos se paran en la puerta.',
   twin:'Cofre gemelo: necesita a dos. Pisen las dos placas a la vez para abrirlo. Si juegas solo, pisa una y tu mascota corre a la otra.',
   cripta:()=>`Estás en las criptas. La escalera baja al siguiente piso y el portal azul vuelve al pueblo. Rueda con [${keyLabel(ctrls[0]&&ctrls[0].src,'rol')}] para esquivar golpes.`,
   pts:()=>`¡Subiste de nivel! Reparte tus puntos en Bolsa → Personaje ([${keyLabel(ctrls[0]&&ctrls[0].src,'inv')}]).`};
@@ -3717,7 +3747,7 @@ const FILTER_OK=typeof ctx.filter==='string';
 function petPic(k,lvl,x,y,fixed,sil,lock){if(sil&&FILTER_OK){ctx.filter=lock?'brightness(0) invert(.18)':'brightness(0) invert(.36)';drawPetBody(k,lvl,x,y,0,false,0,{menu:true,fixed});ctx.filter='none'}
   else drawPetBody(k,lvl,x,y,0,false,0,{menu:true,fixed,alpha:sil?(lock?.2:.35):1})}
 function drawKeeper(c,p,r,m){panelBg(r,p,c,'Ilse · Cuidadora');const pad=14,iw=r.w-pad*2,bh=BH(),by=r.y+r.h-bh-10;
-  tabsRow(r,['Sanar',`Criadero ${p.pets?p.pets.filter(Boolean).length:0}/${NPET}`,'Cuidados'],m.tab,k=>{m.tab=k;m.cur=k===1?p.apet:0});
+  tabsRow(r,['Sanar',`Criadero ${p.pets?p.pets.filter(Boolean).length:0}/${NPET}`,'Cuidados','Equipo'],m.tab,k=>{m.tab=k;m.cur=k===1?p.apet:0});
   const k1=kl(c,'atk'),k2=kl(c,'skl'),k3=kl(c,'inv');
   if(m.tab===0){m.cur=0;const rows=[{name:'Curar heridas',col:'#ebe3d3',dot:'#9be08a',sub:'Vida y maná al máximo para todo el grupo; las mascotas heridas vuelven',price:'Gratis',can:true}];
     drawRows(c,r,rows,0,()=>ctrlAct(c,['npc',2]));
@@ -3745,14 +3775,26 @@ function drawKeeper(c,p,r,m){panelBg(r,p,c,'Ilse · Cuidadora');const pad=14,iw=
     const bw=(iw-8)/2,act=own&&m.cur===p.apet,lock=!own&&(p.maxD||1)<P.req;
     btn(r.x+pad,by,bw,bh,`${k1}${act?'Ya te acompaña':own?'Llevar conmigo':lock?`Piso ${P.req} requerido`:`Adoptar · ${P.price} oro`}`,()=>ctrlAct(c,['padopt',m.cur]),true,act||lock||(!own&&p.gold<P.price));
     btn(r.x+pad+bw+8,by,bw,bh,`${k2}Salir`,()=>{c.menu=null},false,false);return}
+  if(m.tab===3)return drawPetGear(c,p,r,m);
   const d=p.pets&&p.pets[p.apet],max=!d||d.l>=PET_MAX,c1=d?treatCost(d.l):0,c5=Math.round(c1*4.5);
   const rows=[{name:'Bocadillo',col:'#ebe3d3',dot:'#e8a0a8',sub:'Llena 5% de la barra de experiencia',price:max?'Máximo':`${c1} oro`,can:!max&&p.gold>=c1},
     {name:'Banquete',col:'#ebe3d3',dot:'#f0d24a',sub:'Llena 25% de la barra de experiencia',price:max?'Máximo':`${c5} oro`,can:!max&&p.gold>=c5}];
   m.cur=clamp(m.cur|0,0,1);drawRows(c,r,rows,m.cur,k=>{if(m.cur===k)ctrlAct(c,['ptreat',k]);m.cur=k},r.y+78);
   const y0=r.y+78+2*Math.min(54,(by-20-r.y-78)/2)+10;
-  petXPBar(p,r.x+pad,y0,iw);const lines=petStatus(p);lines.push(['En las criptas, abre la bolsa y usa la tecla de poción para mandarla al pueblo: vende lo que es peor que tu equipo, y lo único (o mejor) y las gemas los guarda en el cofre del pueblo.','#7a7184']);
+  petXPBar(p,r.x+pad,y0,iw);const lines=petStatus(p);lines.push(['En las criptas, abre la bolsa y usa la tecla de poción para mandarla al pueblo: guarda en el cofre del pueblo las gemas y lo que tenga rareza igual o mayor a lo que llevas puesto, y vende todo lo demás (también lo marcado como basura).','#7a7184']);
   textLines(lines,r.x+pad,y0+22,iw,by-8,17);
   const bw=(iw-8)/2;btn(r.x+pad,by,bw,bh,`${k1}Dar`,()=>ctrlAct(c,['ptreat',m.cur]),true,!rows[m.cur].can);
+  btn(r.x+pad+bw+8,by,bw,bh,`${k2}Salir`,()=>{c.menu=null},false,false)}
+// pestaña Equipo de Ilse: arriba lo que lleva la mascota, abajo los anillos y amuletos de tu bolsa
+function pgRows(p){const g=pgOf(p),L=[0,1,2].map(k=>({slot:k,it:g[k]}));const cand=[];(p.bag||[]).forEach((it,i)=>{if(it&&(it.k===2||it.k===3))cand.push({bi:i,it})});
+  cand.sort((x,y)=>itemValue(y.it)-itemValue(x.it));return L.concat(cand.slice(0,5))}
+function drawPetGear(c,p,r,m){const pad=14,iw=r.w-pad*2,bh=BH(),by=r.y+r.h-bh-10,k1=kl(c,'atk'),k2=kl(c,'skl');const L=pgRows(p);m.cur=clamp(m.cur|0,0,L.length-1);
+  const rows=L.map(q=>q.slot!=null?{name:q.it?itemName(q.it):(q.slot<2?`Anillo ${q.slot+1}: vacío`:'Amuleto: vacío'),col:q.it?RAR[q.it.rar].c:'#7a7184',dot:q.slot<2?'#f0d24a':'#8fd0ff',sub:q.it?pgLine(q.it):'Elige un anillo o amuleto de tu bolsa (abajo)',price:q.it?'Quitar':'',can:!!q.it}
+    :{name:itemName(q.it),col:RAR[q.it.rar].c,dot:'#3a3544',sub:pgLine(q.it),price:'Ponerle',can:true});
+  drawRows(c,r,rows,m.cur,k=>{const q=L[k];if(m.cur===k&&q)ctrlAct(c,q.slot!=null?['pgoff',q.slot]:['pgear',q.bi]);m.cur=k},r.y+78,22);
+  const pt=p.pet,red=pt&&pt.P?R(petRed(pt)*100):0;ctx.textAlign='left';ctx.font='600 11px "Alegreya Sans", sans-serif';ctx.fillStyle='#a59cb0';
+  ctx.fillText(fit(L.length>3?`Los anillos suben su daño y crítico; el amuleto, su vida y su defensa. Ahora recibe ${red}% menos daño.`:`No tienes anillos ni amuletos en la bolsa. Ahora recibe ${red}% menos daño.`,iw),r.x+pad,by-12);
+  const q=L[m.cur],bw=(iw-8)/2;btn(r.x+pad,by,bw,bh,`${k1}${q&&q.slot!=null?'Quitar':'Ponerle'}`,()=>{if(q)ctrlAct(c,q.slot!=null?['pgoff',q.slot]:['pgear',q.bi])},true,!q||(q.slot!=null&&!q.it));
   btn(r.x+pad+bw+8,by,bw,bh,`${k2}Salir`,()=>{c.menu=null},false,false)}
 function para(t,x,y,w,lh,font,col,maxY){ctx.font=font;ctx.fillStyle=col;ctx.textAlign='left';for(const L of wrapLines(t,w)){if(y>maxY)break;ctx.fillText(L,x,y);y+=lh}return y}
 function drawTavern(c,p,r,m){panelBg(r,p,c,'Gremio de Aventureros');const pad=14,iw=r.w-pad*2,bh=BH(),by=r.y+r.h-bh-10;
