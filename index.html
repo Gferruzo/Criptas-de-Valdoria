@@ -122,7 +122,7 @@ textarea.bk{width:100%;box-sizing:border-box;min-height:96px;resize:vertical;fon
   <div class="overlay" id="lobby">
     <div class="panel">
       <div>
-        <div class="kicker">Co-op · en una PC o en línea con amigos <span class="ver">v0.13</span></div>
+        <div class="kicker">Co-op · en una PC o en línea con amigos <span class="ver">v0.13.1</span></div>
         <h1>Criptas de Valdoria</h1>
         <p class="lede">Bajo el pueblo de Valdoria hay criptas que nunca terminan. Compren armas en la herrería, suban de nivel a sus héroes, bajen piso por piso con su mascota y levanten a quien caiga. Cada 5 pisos espera un guardián. El progreso se guarda solo.</p>
       </div>
@@ -148,7 +148,7 @@ textarea.bk{width:100%;box-sizing:border-box;min-height:96px;resize:vertical;fon
 
 <script>
 'use strict';
-/* Criptas de Valdoria · v0.13 (formas de gastar oro: reforjar, ascender, encantar, objetos misteriosos de Ozmo y mejoras del pueblo) · v0.12 (rarezas más marcadas y por tramo de pisos, armas abisales con 4 huecos, mejoras de 5 a 30 niveles según rareza, anillos y amuletos mejorables) · v0.11 (gemas 3-5-7 y 4 nuevas, Coliseo encadenado, 3 habilidades por mascota, confianza del Gremio y rangos de aventureros, decisiones pospuestas) · v0.10 (2 pasivas por rango en cada camino del Gremio) · v0.9 (mascotas más duras en el Abismo + equipo de mascota)
+/* Criptas de Valdoria · v0.13.1 (enemigos que crecen con el equipo en pisos hondos, defensa con tope, la mascota solo guarda gemas) · v0.13 (formas de gastar oro: reforjar, ascender, encantar, objetos misteriosos de Ozmo y mejoras del pueblo) · v0.12 (rarezas más marcadas y por tramo de pisos, armas abisales con 4 huecos, mejoras de 5 a 30 niveles según rareza, anillos y amuletos mejorables) · v0.11 (gemas 3-5-7 y 4 nuevas, Coliseo encadenado, 3 habilidades por mascota, confianza del Gremio y rangos de aventureros, decisiones pospuestas) · v0.10 (2 pasivas por rango en cada camino del Gremio) · v0.9 (mascotas más duras en el Abismo + equipo de mascota)
    ÍNDICE (busca el título entre signos =)
    utilidades · calidad gráfica · lienzo · entrada · datos · objetos · héroes guardados · logros · salas especiales
    guardado · estado · mapas · mundo · efectos · acciones · combate · mascotas · contenido extra · misiones
@@ -1547,8 +1547,14 @@ function enterFloor(d){if(G.wk&&d!==wkDepth(G.wk))wkDone(d);if(d>=ARENA_AT){evoF
   placeParty(m.spawn);autosave(0,true);
 }
 // vida y daño según profundidad, dificultad, modificador y cuántos son en el grupo (los mercenarios cuentan la mitad)
+// v0.13.1: los enemigos crecen al ritmo del equipo (rarezas, mejoras, joyas). Tablas [piso, multiplicador], se interpola entre puntos
+const HPX=[[10,1],[15,1.7],[25,2.8],[40,7],[50,12],[60,26],[80,38],[100,60],[130,78],[176,105],[300,175]],DMX=[[10,1],[15,1.35],[25,1.25],[40,1.7],[60,2.3],[300,2.3]];
+function knot(K,d){if(d<=K[0][0])return K[0][1];for(let i=1;i<K.length;i++){const[a,x]=K[i-1],[b,y]=K[i];if(d<=b)return x+(y-x)*(d-a)/(b-a)}return K[K.length-1][1]}
+const hpX=d=>knot(HPX,d),dmX=d=>knot(DMX,d);
+// la defensa rinde menos en pisos hondos (antes el divisor era siempre 60 y en el piso 100 se llegaba a 95% menos daño); tope 80%
+const defRed=(df,d)=>Math.min(.8,df/(df+60*Math.pow(Math.max(1,d/12),1.3)));
 function spawnEnemy(type,x,y,d,champ){const T=ETYPES[type],D=DF(),np=partyPower();
-  const sc0=1+(T.boss?.16:.22)*(d-1);let hp=T.prop?T.hp:T.hp*sc0*(1+(T.boss?.22:.3)*(np-1))*D.hp*(mstk(39,1.3))*(mstk(41,1.25))*(champ?2.3:1);
+  const sc0=1+(T.boss?.16:.22)*(d-1);let hp=T.prop?T.hp:T.hp*sc0*(1+(T.boss?.22:.3)*(np-1))*D.hp*(mstk(39,1.3))*(mstk(41,1.25))*(champ?2.3:1);if(!T.prop)hp*=hpX(d);
   let dmg=T.dmg*(1+.15*(d-1))*(champ?1.3:1)*D.dmg*(1+.08*(np-1))*(mstk(5,1.5)),sc=1,spdM=1;
   if(hasMod(34)&&!T.boss&&!T.prop&&!T.reaper){if(Math.random()<.5){sc=.65;hp*=.55;spdM=1.3;dmg*=.7}else{sc=1.5;hp*=2;spdM=.8;dmg*=1.35}}
   G.enemies.push({id:++G.eid,type,T,x,y,r:T.r*(champ?1.15:1)*sc,hp,maxhp:hp,dmg,sc,spdM,champ,atkT:rnd(0,1),slowT:0,kx:0,ky:0,hitT:0,aggro:false,
@@ -1802,8 +1808,8 @@ function giveXP(n){n=Math.round(n*xpMul());if(G.xpT>0)n=Math.round(n*1.5);for(co
   if(up)confetti(p.x,p.y);if(up)toast(`J${p.i+1} subió a nivel ${p.lvl}: tiene ${p.pts} puntos para repartir (Bolsa → Personaje)`,'#f0d24a')}}
 function knockDown(p){if(pasSave(p))return;petRevive(p);if(!p.merc)rsOf(p).dn++;p.hp=0;p.down=true;p.rev=0;p.saT=0;p.kx=p.ky=0;if(!p.merc)G.fallen=true;toast(`${pname(p)} cayó. ¡Quédense a su lado para levantarlo!`,'#e0654a')}
 function trueDmg(p,v){if(p.down||p.invT>0)return;v=Math.max(1,Math.round(v));p.hp-=v;p.hurtT=.2;p.fish=null;ftext(p.x,p.y-18,v,'#e0654a',13);if(p.hp<=0)knockDown(p)}
-function hurtPlayer(p,d,src){if(p.down||p.invT>0)return;if(p.rollT>0){if(!(p.dodgeTxt>G.t)){p.dodgeTxt=G.t+.4;ftext(p.x,p.y-24,'¡Esquivado!','#5ec8c0',12)}return}if(Math.random()<Math.min(.3,pv(p,'dodge'))){ftext(p.x,p.y-24,'¡Esquivado!','#5ec8c0',12);return}const df=(aDef(p.armor)+(p.amu?p.amu.def:0))*(mstk(16,.65)),red=df/(df+60),tp=p.pet;if(tp&&tp.P&&tp.P.ro==='shell'&&tp.deadT<=0&&!(tp.away>0)&&dist(tp,p)<220)d*=1-Math.min(.25,.08+.012*tp.stage);
-  d=Math.max(1,Math.round(d*(1-red)*(1-(p.bf&&p.bf.shT>0?p.bf.sh:0))*(1-Math.min(.5,pv(p,'def')))*(hasMod(37)&&p.chain?.92:1)*(G.ms&&G.ms.ru===2?1.5:1)*rnd(.9,1.1)*pasHurt(p)));pasThorns(p,d,src);
+function hurtPlayer(p,d,src){if(p.down||p.invT>0)return;if(p.rollT>0){if(!(p.dodgeTxt>G.t)){p.dodgeTxt=G.t+.4;ftext(p.x,p.y-24,'¡Esquivado!','#5ec8c0',12)}return}if(Math.random()<Math.min(.3,pv(p,'dodge'))){ftext(p.x,p.y-24,'¡Esquivado!','#5ec8c0',12);return}const df=(aDef(p.armor)+(p.amu?p.amu.def:0))*(mstk(16,.65)),red=defRed(df,G.depth|0),tp=p.pet;if(tp&&tp.P&&tp.P.ro==='shell'&&tp.deadT<=0&&!(tp.away>0)&&dist(tp,p)<220)d*=1-Math.min(.25,.08+.012*tp.stage);
+  d=Math.max(1,Math.round(d*dmX(G.depth|0)*(1-red)*(1-(p.bf&&p.bf.shT>0?p.bf.sh:0))*(1-Math.min(.5,pv(p,'def')))*(hasMod(37)&&p.chain?.92:1)*(G.ms&&G.ms.ru===2?1.5:1)*rnd(.9,1.1)*pasHurt(p)));pasThorns(p,d,src);
   if(p.ward>0){const a=Math.min(p.ward,d);p.ward-=a;d-=a;if(d<=0){ftext(p.x,p.y-18,'Escudo','#8fe8ff',12);return}}
   p.hp-=d;p.hurtT=.2;p.fish=null;ftext(p.x,p.y-18,d,'#e0654a',13);
   if(p.revT>G.t&&p.revOf&&p.revOf.down&&p.revOf.rev>0){const o=p.revOf;o.rev=Math.max(0,o.rev-revNeed()*.3);if(!(o.intT>G.t)){o.intT=G.t+1;ftext(o.x,o.y-34,'¡Interrumpido! Cúbranlo','#e0654a',12)}}
@@ -1880,7 +1886,7 @@ function petSync(pt){const o=pt.owner;let sp=clamp(o.apet|0,0,NPET-1);if(!o.pets
   pt.sp=sp;pt.P=P;pt.lvl=d.l;pt.stage=petStage(d.l);pt.taunt=P.ro==='tank'||tr===1;
   const am=pgOf(o)[2];pt.maxhp=Math.round(((45+13*d.l)*P.hp*(1+.05*pt.stage)+(am?am.hp:0))*(tr===1?2:1)*(mstk(28,1.25)));pt.hp=clamp(Math.round(pt.maxhp*f),1,pt.maxhp);
   pt.r=clamp(8+pt.stage*.6,8,15)*(tr===4?1.4:1)}
-const petDmg=pt=>(4+1.5*pt.lvl+.6*pt.owner.lvl)*pt.P.dmg*(1+.06*pt.stage)*(petTr(pt)===4?2.5:1)*(1+pv(pt.owner,'pet'))*(1+pgPow(pt.owner))*(mstk(10,1.5));
+const petDmg=pt=>hpX(G?G.depth|0:0)*(4+1.5*pt.lvl+.6*pt.owner.lvl)*pt.P.dmg*(1+.06*pt.stage)*(petTr(pt)===4?2.5:1)*(1+pv(pt.owner,'pet'))*(1+pgPow(pt.owner))*(mstk(10,1.5));
 function petXP(p,n){const d=p.pets&&p.pets[p.apet],pt=p.pet;if(!d||d.l>=PET_MAX||!(n>0))return;d.x+=n;let up=false,evo=false;
   while(d.l<PET_MAX&&d.x>=petNext(d.l)){d.x-=petNext(d.l);d.l++;up=true;if(d.l%10===0)evo=true}
   if(d.l>=PET_MAX)d.x=0;if(!up)return;acAdd(p,'pm',d.l,true);petSync(pt);pt.hp=pt.maxhp;const P=PETS[p.apet];
@@ -1893,9 +1899,9 @@ function goldPickup(L,bonusOwner){for(const q of G.players){const v=Math.round(L
   let s=`+${L.n} oro c/u`;if(bonusOwner){const b=Math.max(1,Math.round(L.n*.25));bonusOwner.gold+=b;s+=` · +${b} J${bonusOwner.i+1}`}
   ftext(L.x,L.y,s,'#f0d24a',11);L.taken=true}
 // únicos o mejores (y gemas): la mascota no los vende, los guarda en el cofre del pueblo
-// la mascota guarda en el cofre las gemas y lo que tenga rareza igual o mayor a lo que llevas en ese lugar; vende todo lo demás (y lo marcado como basura)
+// la mascota guarda en el cofre solo las gemas y vende todo el equipo (v0.13.1)
 function petEqRar(p,it){const eq=it.k===0?(it.ci===p.cls.i?p.weapon:(p.chars[it.ci]&&p.chars[it.ci].w)):slotOf(p,it.k);return eq?eq.rar|0:-1}
-function petKeep(p,it){if(it.k===4)return true;if(it.j)return false;return it.k<=3&&(it.rar|0)>=petEqRar(p,it)}
+function petKeep(p,it){return it.k===4}// v0.13.1: la mascota solo guarda gemas; todo el equipo se vende
 const psellA=p=>['psell',Math.max(0,STASH-stashOf(p).length)];
 function petWorse(p,it){if(it.k===4)return false;if(it.k===2)return !!p.ring&&it.pow<=p.ring.pow;if(it.k===3)return !!p.amu&&it.hp<=p.amu.hp;if(it.k===0){const eq=it.ci===p.cls.i?p.weapon:(p.chars[it.ci]&&p.chars[it.ci].w);if(!eq)return false;return it.pow*upDmg(it.up[0])<=eq.pow*upDmg(eq.up[0])}
   return aDef(it)<=aDef(p.armor)&&aHp(it)<=aHp(p.armor)}
@@ -4812,7 +4818,7 @@ function drawKeeper(c,p,r,m){panelBg(r,p,c,'Ilse · Cuidadora');const pad=14,iw=
     {name:'Banquete',col:'#ebe3d3',dot:'#f0d24a',sub:'Llena 25% de la barra de experiencia',price:max?'Máximo':`${c5} oro`,can:!max&&p.gold>=c5}];
   m.cur=clamp(m.cur|0,0,1);drawRows(c,r,rows,m.cur,k=>{if(m.cur===k)ctrlAct(c,['ptreat',k]);m.cur=k},r.y+78);
   const y0=r.y+78+2*Math.min(54,(by-20-r.y-78)/2)+10;
-  petXPBar(p,r.x+pad,y0,iw);const lines=petStatus(p);if(d){const AL=petAbList(p.apet);AL.forEach((A,j)=>{const ok=d.l>=PET_AB_LV[j];lines.push([`${ok?'✓':'○'} Nv ${PET_AB_LV[j]} · ${A[0]}: ${A[1]}`,ok?'#8fe8ff':'#6e6878'])})}lines.push(['En las criptas, abre la bolsa y usa la tecla de poción para mandarla al pueblo: guarda en el cofre del pueblo las gemas y lo que tenga rareza igual o mayor a lo que llevas puesto, y vende todo lo demás (también lo marcado como basura).','#7a7184']);
+  petXPBar(p,r.x+pad,y0,iw);const lines=petStatus(p);if(d){const AL=petAbList(p.apet);AL.forEach((A,j)=>{const ok=d.l>=PET_AB_LV[j];lines.push([`${ok?'✓':'○'} Nv ${PET_AB_LV[j]} · ${A[0]}: ${A[1]}`,ok?'#8fe8ff':'#6e6878'])})}lines.push(['En las criptas, abre la bolsa y usa la tecla de poción para mandarla al pueblo: guarda en el cofre del pueblo solo las gemas y vende todo el equipo.','#7a7184']);
   textLines(lines,r.x+pad,y0+22,iw,by-8,17);
   const bw=(iw-8)/2;btn(r.x+pad,by,bw,bh,`${k1}Dar`,()=>ctrlAct(c,['ptreat',m.cur]),true,!rows[m.cur].can);
   btn(r.x+pad+bw+8,by,bw,bh,`${k2}Salir`,()=>{c.menu=null},false,false)}
