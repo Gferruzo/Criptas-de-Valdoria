@@ -122,7 +122,7 @@ textarea.bk{width:100%;box-sizing:border-box;min-height:96px;resize:vertical;fon
   <div class="overlay" id="lobby">
     <div class="panel">
       <div>
-        <div class="kicker">Co-op · en una PC o en línea con amigos <span class="ver">v0.14</span></div>
+        <div class="kicker">Co-op · en una PC o en línea con amigos <span class="ver">v0.15</span></div>
         <h1>Criptas de Valdoria</h1>
         <p class="lede">Bajo el pueblo de Valdoria hay criptas que nunca terminan. Compren armas en la herrería, suban de nivel a sus héroes, bajen piso por piso con su mascota y levanten a quien caiga. Cada 5 pisos espera un guardián. El progreso se guarda solo.</p>
       </div>
@@ -148,7 +148,7 @@ textarea.bk{width:100%;box-sizing:border-box;min-height:96px;resize:vertical;fon
 
 <script>
 'use strict';
-/* Criptas de Valdoria · v0.14 (cinemáticas: intro, una por rango de camino y crónicas de lugares, criaturas y jefes; Posada del Farol con héroes que se suman al grupo con su propio nivel y equipo) · v0.13.1 (enemigos que crecen con el equipo en pisos hondos, defensa con tope, la mascota solo guarda gemas) · v0.13 (formas de gastar oro: reforjar, ascender, encantar, objetos misteriosos de Ozmo y mejoras del pueblo) · v0.12 (rarezas más marcadas y por tramo de pisos, armas abisales con 4 huecos, mejoras de 5 a 30 niveles según rareza, anillos y amuletos mejorables) · v0.11 (gemas 3-5-7 y 4 nuevas, Coliseo encadenado, 3 habilidades por mascota, confianza del Gremio y rangos de aventureros, decisiones pospuestas) · v0.10 (2 pasivas por rango en cada camino del Gremio) · v0.9 (mascotas más duras en el Abismo + equipo de mascota)
+/* Criptas de Valdoria · v0.15 (pueblo más grande con casas, molino y vecinos; expediciones de héroes desde la posada; todos los héroes bajan al jefe final de cada Abismo) · v0.14 (cinemáticas: intro, una por rango de camino y crónicas de lugares, criaturas y jefes; Posada del Farol con héroes que se suman al grupo con su propio nivel y equipo) · v0.13.1 (enemigos que crecen con el equipo en pisos hondos, defensa con tope, la mascota solo guarda gemas) · v0.13 (formas de gastar oro: reforjar, ascender, encantar, objetos misteriosos de Ozmo y mejoras del pueblo) · v0.12 (rarezas más marcadas y por tramo de pisos, armas abisales con 4 huecos, mejoras de 5 a 30 niveles según rareza, anillos y amuletos mejorables) · v0.11 (gemas 3-5-7 y 4 nuevas, Coliseo encadenado, 3 habilidades por mascota, confianza del Gremio y rangos de aventureros, decisiones pospuestas) · v0.10 (2 pasivas por rango en cada camino del Gremio) · v0.9 (mascotas más duras en el Abismo + equipo de mascota)
    ÍNDICE (busca el título entre signos =)
    utilidades · calidad gráfica · lienzo · entrada · datos · objetos · héroes guardados · logros · salas especiales
    guardado · estado · mapas · mundo · efectos · acciones · combate · mascotas · contenido extra · misiones
@@ -841,17 +841,17 @@ const dayPhase=()=>(Date.now()/1000/480)%1;
 function nightA(){const ph=dayPhase();return clamp(Math.cos(ph*Math.PI*2)*-.7+.1,0,.5)}
 function drawTownNight(){const a=nightA();if(a<=.01||!G.map)return;ctx.fillStyle=`rgba(8,10,30,${a})`;ctx.fillRect(-200,-200,G.map.w*TILE+400,G.map.h*TILE+400);
   ctx.globalCompositeOperation='lighter';const warm=(x,y,r,al)=>{const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(255,190,100,${al})`);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()};
-  for(const[x,y]of INN_LAMPS)warm(x*TILE,y*TILE+20,80,.22*a/.5);for(const[x,y]of INN_TABLES)warm(x*TILE,y*TILE-8,60,.2*a/.5);
+  for(const[x,y]of INN_LAMPS)warm(x*TILE,y*TILE+20,80,.22*a/.5);for(const[x,y]of TOWN_LAMPS)warm(x*TILE,y*TILE-18,110,.3*a/.5);for(const[x,y]of INN_TABLES)warm(x*TILE,y*TILE-8,60,.2*a/.5);
   for(const n of G.npcs)if(!n.hide)warm(n.x,n.y-10,n.kind==='farol'?(G.tf?260:170):70,(n.kind==='farol'?.35:.12)*a/.5);for(const p of G.players)warm(p.x,p.y,90,.08*a/.5);ctx.globalCompositeOperation='source-over'}
 function drawSeasonTown(layer){const s=season();if(!s)return;
-  if(s==='hal'){if(layer)return;for(const[x,y]of[[16,12],[20,12],[12.5,15],[23.5,16.5],[33,12],[4,12],[30,23]]){const px=x*TILE,py=y*TILE,f=.6+.4*Math.sin(G.t*5+x);shadow(px,py+8,9);ctx.fillStyle='#d8641c';ctx.beginPath();ctx.ellipse(px,py,10,8,0,0,7);ctx.fill();ctx.fillStyle='#3a6a2a';ctx.fillRect(px-1.5,py-11,3,4);
+  if(s==='hal'){if(layer)return;for(const[x,y]of[[33.5,17.5],[45.5,17.5],[30,22.4],[47,22.4],[20,15],[58,16],[12,23.5],[64,31],[26,29],[71,21]]){const px=x*TILE,py=y*TILE,f=.6+.4*Math.sin(G.t*5+x);shadow(px,py+8,9);ctx.fillStyle='#d8641c';ctx.beginPath();ctx.ellipse(px,py,10,8,0,0,7);ctx.fill();ctx.fillStyle='#3a6a2a';ctx.fillRect(px-1.5,py-11,3,4);
     ctx.fillStyle=`rgba(255,220,90,${f})`;ctx.beginPath();ctx.moveTo(px-6,py-2);ctx.lineTo(px-3,py-5);ctx.lineTo(px-1,py-2);ctx.fill();ctx.beginPath();ctx.moveTo(px+6,py-2);ctx.lineTo(px+3,py-5);ctx.lineTo(px+1,py-2);ctx.fill();ctx.fillRect(px-5,py+2,10,2)}}
   else if(layer){ctx.fillStyle='rgba(255,255,255,.85)';for(let k=0;k<60;k++){const x=((k*137.5+G.t*(12+k%5*4))%(G.map.w*TILE)),y=((k*91.3+G.t*(30+k%7*6))%(G.map.h*TILE));ctx.fillRect(x,y,2,2)}}}
 // ---------- NPC nuevos del pueblo ----------
-function farolNPCs(){const L=[{x:15.5*TILE,y:11.6*TILE,name:'Último Farol',role:'Diario del grupo',col:'#ffd27a',kind:'farol',prompt:'Leer el diario del grupo'},
-  {x:22.5*TILE,y:11.4*TILE,name:'Salón de la Fama',role:'Récords del grupo',col:'#c9a04a',kind:'fame',prompt:'Ver los récords'}];
-  if(G&&G.tf){L.push({x:10*TILE,y:12.3*TILE,x0:10*TILE,walk:28,name:'Bran',role:'Hermano de Liria',col:'#86c95e',kind:'npc',talk:1,prompt:'Hablar',lines:['Liria me encontró dormido entre raíces. Todavía sueño con el susurro.','Si ves a mi hermana, dile que ya practico con el arco.','Allá abajo había una voz que sabía mi nombre. Ya no la oigo.']});
-    L.push({x:25.5*TILE,y:12.2*TILE,x0:25.5*TILE,walk:34,name:'Elda',role:'Madre de Morwen',col:'#b04a5a',kind:'npc',talk:1,prompt:'Hablar',lines:['Morwen talló mejor la ballesta que yo. No se lo digan.','Trescientos años de vampiros y lo peor era el Corazón. Quién lo diría.','Gracias por bajar hasta donde nadie bajaba.']})}
+function farolNPCs(){const L=[{x:35.5*TILE,y:16.8*TILE,name:'Último Farol',role:'Diario del grupo',col:'#ffd27a',kind:'farol',prompt:'Leer el diario del grupo'},
+  {x:43.5*TILE,y:16.6*TILE,name:'Salón de la Fama',role:'Récords del grupo',col:'#c9a04a',kind:'fame',prompt:'Ver los récords'}];
+  if(G&&G.tf){L.push({x:24*TILE,y:17.3*TILE,x0:24*TILE,walk:28,name:'Bran',role:'Hermano de Liria',col:'#86c95e',kind:'npc',talk:1,prompt:'Hablar',lines:['Liria me encontró dormido entre raíces. Todavía sueño con el susurro.','Si ves a mi hermana, dile que ya practico con el arco.','Allá abajo había una voz que sabía mi nombre. Ya no la oigo.']});
+    L.push({x:51*TILE,y:17.3*TILE,x0:51*TILE,walk:34,name:'Elda',role:'Madre de Morwen',col:'#b04a5a',kind:'npc',talk:1,prompt:'Hablar',lines:['Morwen talló mejor la ballesta que yo. No se lo digan.','Trescientos años de vampiros y lo peor era el Corazón. Quién lo diría.','Gracias por bajar hasta donde nadie bajaba.']})}
   return L}
 function drawFarol(n){const t=G.t,x=n.x,y=n.y,lit=!!G.tf,fl=lit?1:.55+.45*Math.abs(Math.sin(t*7)*Math.sin(t*2.3));shadow(x,y+12,14);ctx.fillStyle='#3a3542';ctx.fillRect(x-12,y+6,24,8);ctx.fillStyle='#2a2630';ctx.fillRect(x-3,y-44,6,52);
   ctx.fillStyle='#4e4858';ctx.fillRect(x-10,y-58,20,16);ctx.strokeStyle='#c9a04a';ctx.lineWidth=1.5;ctx.strokeRect(x-10,y-58,20,16);
@@ -1217,13 +1217,22 @@ const makeGem=(t,q)=>({k:4,rar:clamp(q,0,3),s:Math.floor(Math.random()*1e9),ci:0
 const gemCrit=w=>gemSum(w,3);
 const gemLine=w=>(w&&w.gm||[]).filter(Boolean).map(g=>`${GEMS[(g-1)>>2].n}${gq((g-1)>>2,(g-1)&3)?' '+gq((g-1)>>2,(g-1)&3):''}`).join(', ');
 const BUILDINGS=[
-  {x:5,y:5,w:7,h:3,kind:'forge',name:'Herrería'},
-  {x:25,y:5,w:7,h:3,kind:'shop',name:'Almacén de Ozmo'},
-  {x:25,y:15,w:7,h:3,kind:'temple',name:'Criadero de Ilse'},
-  {x:35,y:5,w:7,h:3,kind:'tavern',name:'Gremio de Aventureros'},
-  {x:35,y:15,w:7,h:3,kind:'jewel',name:'Joyería de Gema'},
-  {x:44,y:5,w:7,h:3,kind:'inn',name:'Posada del Farol'},
+  {x:7,y:10,w:7,h:3,kind:'forge',name:'Herrería'},
+  {x:45,y:10,w:7,h:3,kind:'shop',name:'Almacén de Ozmo'},
+  {x:45,y:24,w:7,h:3,kind:'temple',name:'Criadero de Ilse'},
+  {x:57,y:10,w:7,h:3,kind:'tavern',name:'Gremio de Aventureros'},
+  {x:57,y:24,w:7,h:3,kind:'jewel',name:'Joyería de Gema'},
+  {x:68,y:10,w:7,h:3,kind:'inn',name:'Posada del Farol'},
+  // v0.15: casas del pueblo (solo decoran)
+  {x:23,y:10,w:6,h:3,kind:'house',name:'Casa de los Robles',deco:0},
+  {x:30,y:10,w:5,h:3,kind:'bakery',name:'Panadería de Nela',deco:1},
+  {x:23,y:24,w:6,h:3,kind:'house',name:'Casa de los Pastores',deco:2},
+  {x:30,y:24,w:5,h:3,kind:'house',name:'Taller del tejedor',deco:3},
+  {x:13,y:33,w:5,h:3,kind:'mill',name:'Molino',deco:4},
+  {x:45,y:35,w:6,h:3,kind:'house',name:'Casa del farolero',deco:5},
+  {x:2,y:3,w:5,h:3,kind:'house',name:'Granero',deco:6},
 ];
+const TOWN_RY=19,TOWN_RX=38,TOWN_LY=32;
 
 // ================= objetos =================
 function makeItem(k,rar,D,mul,s,ci){const r=mulberry32(s),m=RAR[rar].m*mul*(.92+.16*r());
@@ -1320,11 +1329,11 @@ function sleepTick(dt){G.slT=(G.slT||0)-dt;if(G.slT>0)return;G.slT=.25;if(!G.dor
   if(G.dormant.length){const wake=[];G.dormant=G.dormant.filter(e=>{if(near(e,WAKE)){wake.push(e);return false}return true});for(const e of wake)G.enemies.push(e)}
   const sl=[];G.enemies=G.enemies.filter(e=>{if(e.dead||e.arena||near(e,SLEEP))return true;sl.push(e);return false});for(const e of sl){e.aggro=false;e.kx=0;e.ky=0;G.dormant.push(e)}}
 
-const defaultHero=()=>({cp:[],xs:newXs(),cb:0,hl:0,df:1,fm:0,scr:1,au:0,ac:sanAc(null),ttl:-1,dye:-1,ms:null,v:3,cur:0,gold:80,maxDepth:1,pets:PETS.map(()=>null),apet:0,pg:[null,null,null],legacy:0,bag:[],stash:[],chars:CLASSES.map(C=>defaultChar(C.i))});
+const defaultHero=()=>({ex:[],cp:[],xs:newXs(),cb:0,hl:0,df:1,fm:0,scr:1,au:0,ac:sanAc(null),ttl:-1,dye:-1,ms:null,v:3,cur:0,gold:80,maxDepth:1,pets:PETS.map(()=>null),apet:0,pg:[null,null,null],legacy:0,bag:[],stash:[],chars:CLASSES.map(C=>defaultChar(C.i))});
 function sanPots(v){if(Array.isArray(v))return [0,1,2,3].map(i=>clamp(v[i]|0,0,POTMAX));if(typeof v==='number')return [0,clamp(v|0,0,POTMAX),0,0];return [3,0,0,1]}
 function sanSk(v,act){const sk=Array.from({length:SKALL},(_,i)=>clamp((Array.isArray(v)?v[i]:0)|0,0,SKMAX));sk[0]=Math.max(1,sk[0]);let a=clamp(act|0,0,SKN-1);if(!sk[a])a=0;return {sk,act:a}}
 function sanitizeHero(h){const d=defaultHero();if(!h||typeof h!=='object')return d;
-  d.cur=clamp(h.cur|0,0,NCLS-1);d.cp=Array.isArray(h.cp)?h.cp.map(v=>v|0).filter(v=>v>=0&&v<NCLS).slice(0,MERC_MAX):[];d.gold=clamp(Math.floor(num(h.gold,80)),0,1e9);d.maxDepth=clamp(h.maxDepth|0,1,9999);d.legacy=clamp(h.pet|0,0,999);d.mc=Array.isArray(h.mc)?h.mc.slice(0,MERC_MAX).filter(Array.isArray).map(a=>a.slice(0,4).map(v=>v|0)):[];d.ms=decMs(h.ms);
+  d.cur=clamp(h.cur|0,0,NCLS-1);d.ex=Array.isArray(h.ex)?h.ex.filter(e=>e&&Array.isArray(e.k)).slice(0,EXP_MAX).map(e=>({k:e.k.map(v=>v|0).filter(v=>v>=0&&v<NCLS).slice(0,EXP_HEROES),d:clamp(e.d|0,1,999),t0:num(e.t0,0),m:clamp(e.m|0,1,600)})).filter(e=>e.k.length):[];d.cp=Array.isArray(h.cp)?h.cp.map(v=>v|0).filter(v=>v>=0&&v<NCLS).slice(0,MERC_MAX):[];d.gold=clamp(Math.floor(num(h.gold,80)),0,1e9);d.maxDepth=clamp(h.maxDepth|0,1,9999);d.legacy=clamp(h.pet|0,0,999);d.mc=Array.isArray(h.mc)?h.mc.slice(0,MERC_MAX).filter(Array.isArray).map(a=>a.slice(0,4).map(v=>v|0)):[];d.ms=decMs(h.ms);
   d.cb=clamp(h.cb|0,0,99999);d.xs=sanXs(h.xs);d.hl=h.hl?1:0;d.df=h.df==null?1:clamp(h.df|0,0,3);d.fm=clamp(Math.floor(num(h.fm,0)),0,1e9);d.scr=h.scr==null?1:clamp(h.scr|0,0,5);d.au=clamp(h.au|0,0,(1<<ACH.length)-1);d.ac=sanAc(h.ac);d.ttl=clamp(h.ttl==null?-1:h.ttl|0,-1,ACH.length-1);d.dye=clamp(h.dye==null?-1:h.dye|0,-1,ACH.length-1);
   if(Array.isArray(h.pets)){h.pets.slice(0,NPET).forEach((q,k)=>{if(Array.isArray(q)&&q.length)d.pets[k]={l:clamp(q[0]|0,1,PET_MAX),x:clamp(num(q[1],0),0,1e9)};else if(q&&typeof q==='object'&&q.l)d.pets[k]={l:clamp(q.l|0,1,PET_MAX),x:clamp(num(q.x,0),0,1e9)}});d.apet=clamp(h.apet|0,0,NPET-1)}
   d.pg=sanPg(h.pg);
@@ -1336,7 +1345,7 @@ function sanitizeHero(h){const d=defaultHero();if(!h||typeof h!=='object')return
     if(d.chars[k].r&&d.chars[k].r.k!==2)d.chars[k].r=null;if(d.chars[k].m&&d.chars[k].m.k!==3)d.chars[k].m=null;
     if(d.chars[k].w.k!==0)d.chars[k].w=starterWeapon(k);if(d.chars[k].a.k!==1)d.chars[k].a=starterArmor(k);d.chars[k].w.ci=k}
   return d}
-const encHero=h=>({v:3,cp:(h.cp||[]).slice(0,MERC_MAX).map(v=>v|0),xs:sanXs(h.xs),cb:h.cb|0,hl:h.hl?1:0,df:h.df==null?1:h.df|0,cur:h.cur,gold:h.gold,maxDepth:h.maxDepth,pets:(h.pets||[]).map(q=>q?[q.l,R(q.x)]:0),apet:h.apet|0,pet:h.legacy|0,mc:h.mc||[],fm:h.fm|0,scr:h.scr==null?1:h.scr|0,au:h.au|0,ac:sanAc(h.ac),ttl:h.ttl==null?-1:h.ttl,dye:h.dye==null?-1:h.dye,ms:h.ms?encMs(h.ms):0,bag:h.bag.map(encItem),stash:(h.stash||[]).map(encItem),pg:encPg(h.pg),
+const encHero=h=>({v:3,ex:(h.ex||[]).map(e=>({k:e.k.slice(),d:e.d,t0:e.t0,m:e.m})),cp:(h.cp||[]).slice(0,MERC_MAX).map(v=>v|0),xs:sanXs(h.xs),cb:h.cb|0,hl:h.hl?1:0,df:h.df==null?1:h.df|0,cur:h.cur,gold:h.gold,maxDepth:h.maxDepth,pets:(h.pets||[]).map(q=>q?[q.l,R(q.x)]:0),apet:h.apet|0,pet:h.legacy|0,mc:h.mc||[],fm:h.fm|0,scr:h.scr==null?1:h.scr|0,au:h.au|0,ac:sanAc(h.ac),ttl:h.ttl==null?-1:h.ttl,dye:h.dye==null?-1:h.dye,ms:h.ms?encMs(h.ms):0,bag:h.bag.map(encItem),stash:(h.stash||[]).map(encItem),pg:encPg(h.pg),
   chars:h.chars.map(c=>({lvl:c.lvl,xp:R(c.xp),next:c.next,st:c.st.slice(),pts:c.pts,pots:c.pots.slice(),sk:c.sk.slice(),act:c.act,w:encItem(c.w),a:encItem(c.a),r:c.r?encItem(c.r):0,m:c.m?encItem(c.m):0,ev:encEv(c.ev)}))});
 // equipo de la mascota (v0.9): 2 anillos y 1 amuleto, lo comparten todas las mascotas del héroe
 function sanPg(v){const o=[null,null,null];if(!Array.isArray(v))return o;for(let k=0;k<3;k++){const q=v[k];if(!q)continue;const it=typeof q==='object'&&!Array.isArray(q)&&q.k!=null?q:decItem(q);if(it&&it.k===(k<2?2:3))o[k]=it}return o}
@@ -1355,7 +1364,7 @@ function decChar(c,w,a,k){c=Array.isArray(c)?c:[];const S=sanSk([c[12],c[13],c[1
 function storeChar(p){p.chars[p.cls.i]={lvl:p.lvl,xp:p.xp,next:p.next,st:st(p).slice(),pts:p.pts,pots:p.pots.slice(),sk:p.sk.slice(),act:p.act,w:p.weapon,a:p.armor,r:p.ring||null,m:p.amu||null,ev:p.ev||newEv()}}
 function loadChar(p,k){const c=p.chars[k]||defaultChar(k);p.cls=CLASSES[k];p.lvl=c.lvl;p.xp=c.xp;p.next=c.next;p.st=c.st.slice();p.pts=c.pts;p.pots=c.pots.slice();
   p.sk=c.sk.slice();p.act=c.act;p.ev=c.ev||newEv();p.weapon=c.w;p.armor=c.a;p.ring=c.r||null;p.amu=c.m||null;recalc(p);p.hp=p.maxhp;p.mp=p.maxmp}
-function heroOf(p){storeChar(p);for(const q of cpOf(p))cpSync(q);return {v:3,cp:cpOf(p).map(q=>q.cls.i),xs:sanXs(p.xs),cb:p.cb|0,hl:p.hl|0,df:p.df==null?1:p.df,cur:p.cls.i,gold:p.gold,maxDepth:p.maxD,pets:p.pets.map(q=>q?{l:q.l,x:q.x}:null),apet:p.apet,pg:(p.pg||[null,null,null]).slice(),mc:encMercs(p),fm:p.fm|0,scr:p.scr|0,au:p.au|0,ac:sanAc(p.ac),ttl:p.ttl,dye:p.dye,ms:(p.ms||[]).map(m=>({...m})),bag:p.bag.slice(),stash:(p.stash||[]).slice(),chars:p.chars.map(c=>({...c,st:c.st.slice(),pots:c.pots.slice(),sk:c.sk.slice()}))}}
+function heroOf(p){storeChar(p);for(const q of cpOf(p))cpSync(q);return {v:3,ex:(p.ex||[]).map(e=>({...e,k:e.k.slice()})),cp:cpOf(p).map(q=>q.cls.i),xs:sanXs(p.xs),cb:p.cb|0,hl:p.hl|0,df:p.df==null?1:p.df,cur:p.cls.i,gold:p.gold,maxDepth:p.maxD,pets:p.pets.map(q=>q?{l:q.l,x:q.x}:null),apet:p.apet,pg:(p.pg||[null,null,null]).slice(),mc:encMercs(p),fm:p.fm|0,scr:p.scr|0,au:p.au|0,ac:sanAc(p.ac),ttl:p.ttl,dye:p.dye,ms:(p.ms||[]).map(m=>({...m})),bag:p.bag.slice(),stash:(p.stash||[]).slice(),chars:p.chars.map(c=>({...c,st:c.st.slice(),pots:c.pots.slice(),sk:c.sk.slice()}))}}
 function charLevels(p){if(p.lvls)return p.lvls;return p.chars?p.chars.map((c,k)=>k===p.cls.i?p.lvl:c.lvl):CLASSES.map(()=>1)}
 const potTotal=p=>p.pots[0]+p.pots[1]+p.pots[2];
 const topLvl=p=>Math.max(p.lvl|0,...(charLevels(p)||[1]).map(v=>v|0));
@@ -1441,7 +1450,7 @@ function genDungeon(depth,seed){
     spawn:{x:(start.cx+.5)*TILE,y:(start.cy+1.5)*TILE},stairs:{x:(far.cx+.5)*TILE,y:(far.cy+.5)*TILE},portal:{x:(px+.5)*TILE,y:(py+.5)*TILE}};
 }
 // el Coliseo: una sala mediana y cerrada, con cuatro columnas para cubrirse, cuatro rejas por donde entran los enemigos y el portal de salida abajo
-const COLIS_DOOR={x:34.5*TILE,y:23.2*TILE};
+const COLIS_DOOR={x:69.5*TILE,y:37.2*TILE};
 function genColiseum(){const w=28,h=22,t=new Uint8Array(w*h);
   for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)t[y*w+x]=1;
   for(const[px,py]of[[7,6],[19,6],[7,14],[19,14]])for(let y=py;y<py+2;y++)for(let x=px;x<px+2;x++)t[y*w+x]=0;
@@ -1452,30 +1461,32 @@ function genColiseum(){const w=28,h=22,t=new Uint8Array(w*h);
   return {w,h,t,seen:new Uint8Array(w*h).fill(1),town:false,colis:true,torches,rooms:[room],startRoom:room,stairRoom:room,gates,
     spawn:{x:(ex+.5)*TILE,y:(ey-6.5)*TILE},stairs:{x:-1e6,y:-1e6},portal:{x:(ex+.5)*TILE,y:(ey+.5)*TILE}}}
 function genTown(){
-  const w=52,h=26,t=new Uint8Array(w*h);
+  const w=78,h=40,t=new Uint8Array(w*h),RY=TOWN_RY,RX=TOWN_RX,LY=TOWN_LY;
   for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)t[y*w+x]=6;
-  for(let x=2;x<w-2;x++){t[13*w+x]=1;t[14*w+x]=1}
-  for(let y=3;y<h-2;y++){t[y*w+17]=1;t[y*w+18]=1}
-  for(let y=17;y<23;y++)for(let x=3;x<12;x++){if(!((y===17||y===22)&&(x===3||x===11)))t[y*w+x]=4}
-  for(const[x,y]of[[3,3],[5,3],[12,3],[23,3],[33,4],[33,9],[3,10],[20,24],[31,22],[14,22],[26,23],[33,17],[43,3],[50,3],[50,17],[45,21],[49,23],[43,18]])t[y*w+x]=7;
+  for(let x=2;x<w-2;x++){t[RY*w+x]=1;t[(RY+1)*w+x]=1}
+  for(let y=3;y<h-2;y++){t[y*w+RX]=1;t[y*w+RX+1]=1}
+  for(const sx of[20,54])for(let y=8;y<=LY+1;y++){t[y*w+sx]=1;t[y*w+sx+1]=1}
+  for(let x=20;x<=55;x++){t[LY*w+x]=1;t[(LY+1)*w+x]=1}
+  for(let y=26;y<32;y++)for(let x=4;x<13;x++){if(!((y===26||y===31)&&(x===4||x===12)))t[y*w+x]=4}
   for(const b of BUILDINGS)for(let y=b.y;y<b.y+b.h;y++)for(let x=b.x;x<b.x+b.w;x++)t[y*w+x]=8;
-  for(const b of BUILDINGS){const dx=b.x+(b.w>>1);for(let y=b.y+b.h;y<13;y++)if(t[y*w+dx]===6)t[y*w+dx]=1}
-  t[2*w+17]=5;t[2*w+18]=5;
-  return {w,h,t,seen:new Uint8Array(w*h).fill(1),town:true,spawn:{x:18*TILE,y:16*TILE},entrance:{x:18*TILE,y:2.6*TILE}};
+  for(const b of BUILDINGS){const dx=b.x+(b.w>>1);if(b.y<RY){for(let y=b.y+b.h;y<RY;y++)if(t[y*w+dx]===6)t[y*w+dx]=1}else if(b.y<LY){for(let y=b.y+b.h;y<LY;y++)if(t[y*w+dx]===6)t[y*w+dx]=1}}
+  for(const[x,y]of[[8,4],[12,3],[16,6],[27,4],[33,5],[44,4],[50,6],[60,4],[65,6],[74,4],[3,15],[15,16],[17,23],[2,22],[15,27],[27,35],[33,36],[59,35],[63,34],[74,23],[74,31],[66,25],[52,22],[61,21],[29,22],[13,23],[48,4],[72,7],[3,9],[17,13],[34,14],[42,14],[74,16],[66,30],[24,37],[9,36],[2,36],[36,30],[57,30],[52,30]])if(t[y*w+x]===6)t[y*w+x]=7;
+  t[2*w+RX]=5;t[2*w+RX+1]=5;
+  return {w,h,t,seen:new Uint8Array(w*h).fill(1),town:true,spawn:{x:(RX+1)*TILE,y:22.5*TILE},entrance:{x:(RX+1)*TILE,y:2.6*TILE}};
 }
 function townNPCs(){return [
-  {x:8.5*TILE,y:9.6*TILE,name:'Brunilda',role:'Herrera',col:'#c46a3a',kind:'npc',prompt:'Herrería: comprar y mejorar'},
-  {x:28.5*TILE,y:9.6*TILE,name:'Ozmo',role:'Mercader',col:'#5ec8c0',kind:'npc',prompt:'Pociones y habilidades'},
-  {x:28.5*TILE,y:19.6*TILE,name:'Ilse',role:'Cuidadora',col:'#e9e3d3',kind:'npc',prompt:'Sanar y Criadero'},
-  {x:13.5*TILE,y:9.6*TILE,name:'Altar de los Héroes',role:'Cambiar personaje',col:'#9a8ab8',kind:'altar',prompt:'Cambiar de personaje'},
-  {x:21.5*TILE,y:3.4*TILE,name:'Cartel',role:'Piso de bajada',col:'#8a6a48',kind:'sign',prompt:''},
-  {x:38.5*TILE,y:9.6*TILE,name:'Bertoldo',role:'Maestre del Gremio',col:'#8a5a2a',kind:'npc',tav:true,prompt:'Gremio: destino y aventureros'},
-  {x:14.5*TILE,y:16.4*TILE,name:'Tablón de misiones',role:'Misiones',col:'#8a6a48',kind:'board',prompt:'Ver misiones'},
-  {x:38.5*TILE,y:19.6*TILE,name:'Gema',role:'Joyera',col:'#8a5ab8',kind:'npc',jew:true,prompt:'Fusionar gemas'},
-  {x:21.5*TILE,y:15.5*TILE,name:'Cofre',role:'Guardar objetos',col:'#8a6a48',kind:'chest',prompt:'Abrir el cofre'},
-  {x:7.5*TILE,y:16.55*TILE,name:'Muelle',role:'Pesca automática',col:'#8a6a48',kind:'dock',prompt:'Pesca automática'},
+  {x:10.5*TILE,y:14.6*TILE,name:'Brunilda',role:'Herrera',col:'#c46a3a',kind:'npc',prompt:'Herrería: comprar y mejorar'},
+  {x:48.5*TILE,y:14.6*TILE,name:'Ozmo',role:'Mercader',col:'#5ec8c0',kind:'npc',prompt:'Pociones y habilidades'},
+  {x:48.5*TILE,y:28.6*TILE,name:'Ilse',role:'Cuidadora',col:'#e9e3d3',kind:'npc',prompt:'Sanar y Criadero'},
+  {x:30.8*TILE,y:16.8*TILE,name:'Altar de los Héroes',role:'Cambiar personaje',col:'#9a8ab8',kind:'altar',prompt:'Cambiar de personaje'},
+  {x:42.5*TILE,y:3.4*TILE,name:'Cartel',role:'Piso de bajada',col:'#8a6a48',kind:'sign',prompt:''},
+  {x:60.5*TILE,y:14.6*TILE,name:'Bertoldo',role:'Maestre del Gremio',col:'#8a5a2a',kind:'npc',tav:true,prompt:'Gremio: destino y aventureros'},
+  {x:34.5*TILE,y:23.4*TILE,name:'Tablón de misiones',role:'Misiones',col:'#8a6a48',kind:'board',prompt:'Ver misiones'},
+  {x:60.5*TILE,y:28.6*TILE,name:'Gema',role:'Joyera',col:'#8a5ab8',kind:'npc',jew:true,prompt:'Fusionar gemas'},
+  {x:43.5*TILE,y:23.2*TILE,name:'Cofre',role:'Guardar objetos',col:'#8a6a48',kind:'chest',prompt:'Abrir el cofre'},
+  {x:8.5*TILE,y:25.55*TILE,name:'Muelle',role:'Pesca automática',col:'#8a6a48',kind:'dock',prompt:'Pesca automática'},
   {x:COLIS_DOOR.x,y:COLIS_DOOR.y-6,name:'Coliseo',role:'Oleadas sin fin',col:'#c0392b',kind:'colis',prompt:'Junten al grupo en la puerta'},
-...farolNPCs(),...heroNPCs()]}
+...farolNPCs(),...villagers(),...heroNPCs()]}
 const tileAt=(m,x,y)=>(x<0||y<0||x>=m.w||y>=m.h)?0:m.t[y*m.w+x];
 function collides(x,y,r){const m=G.map;
   for(const[cx,cy]of[[x-r,y-r],[x+r,y-r],[x-r,y+r],[x+r,y+r]]){if(SOLID.has(tileAt(m,Math.floor(cx/TILE),Math.floor(cy/TILE))))return true}return false}
@@ -1489,7 +1500,7 @@ function makePlayer(cls,slot,hero){const h=sanitizeHero(hero&&hero.chars&&hero.c
   const p={i:slot,cls:CLASSES[cls],x:0,y:0,r:11,face:0,hp:1,maxhp:1,mp:0,maxmp:1,lvl:1,xp:0,next:60,pots:[0,0,0,0],sk:[1,0,0],act:0,bf:{dmg:0,dmgT:0,spd:0,spdT:0,crit:0,critT:0,sh:0,shT:0},st:[0,0,0,0],pts:0,
     gold:h.gold,maxD:h.maxDepth,chars:h.chars,bag:h.bag,stash:h.stash,sold:0,weapon:null,armor:null,
     atkT:0,sklT:0,swingT:0,hurtT:0,down:false,rev:0,fish:null,near:null,spin:0,intent:null,peer:null,lc:null,lastCmd:0,goneT:0};
-  p.cb=h.cb|0;p.cpSave=h.cp;p.xs=sanXs(h.xs);p.hl=h.hl;p.df=h.df;p.pets=h.pets;p.apet=h.apet;p.pg=h.pg;p.ptr=null;p.mcSave=h.mc;p.fm=h.fm;p.scr=h.scr;p.au=h.au;p.ac=h.ac;p.ttl=h.ttl;p.dye=h.dye;p.rank=rankOf(p);p.ac.pm=Math.max(p.ac.pm|0,...h.pets.map(q=>q?q.l:0));p.ms=h.ms;ensureMs(p);
+  p.cb=h.cb|0;p.cpSave=h.cp;p.ex=h.ex||[];p.xs=sanXs(h.xs);p.hl=h.hl;p.df=h.df;p.pets=h.pets;p.apet=h.apet;p.pg=h.pg;p.ptr=null;p.mcSave=h.mc;p.fm=h.fm;p.scr=h.scr;p.au=h.au;p.ac=h.ac;p.ttl=h.ttl;p.dye=h.dye;p.rank=rankOf(p);p.ac.pm=Math.max(p.ac.pm|0,...h.pets.map(q=>q?q.l:0));p.ms=h.ms;ensureMs(p);
   if(!p.pets.some(Boolean)){const k=PET_STARTERS[slot%4];p.pets[k]={l:clamp(1+h.legacy,1,30),x:0};p.apet=k}else if(!p.pets[p.apet])p.apet=p.pets.findIndex(Boolean);
   p.pet={owner:p,x:0,y:0,r:9,hp:1,maxhp:1,deadT:0,atkT:0,face:0,away:0,awayGold:0,awayStore:0,abT:6,sp:p.apet,lvl:1,stage:0};
   loadChar(p,cls);petSync(p.pet);p.pet.hp=p.pet.maxhp;
@@ -1508,7 +1519,7 @@ function placeParty(at){G.players.forEach((p,k)=>{const a=k/G.players.length*Mat
   G.cam.x=at.x;G.cam.y=at.y;G.groupT=0;}
 function reviveAll(frac){for(const p of G.players)if(p.down){p.down=false;p.hp=Math.max(1,Math.round(p.maxhp*frac));p.rev=0}}
 function closeMenus(){for(const c of ctrls)c.menu=null}
-function enterTown(wiped){const lose=wiped?(hasMod(7)?.5:DF().lose):0;runSummary();G.tf=G.players.some(h=>!h.merc&&xsOf(h)[1])?1:0;G.wk=0;G.are=null;
+function enterTown(wiped){cpTempOut();const lose=wiped?(hasMod(7)?.5:DF().lose):0;runSummary();G.tf=G.players.some(h=>!h.merc&&xsOf(h)[1])?1:0;G.wk=0;G.are=null;
   for(const q of G.players)if(q.merc&&q.merc.hero)cpSync(q);mercContracts();mercFlush();G.depth=0;G.visit++;G.fseed=G.visit;G.map=genTown();G.enemies=[];G.proj=[];G.loot=[];G.fx=[];G.meteors=[];G.minions=[];G.ebombs=[];G.npcs=townNPCs();G.dormant=[];G.arena=null;
   G.mods=rollTramos();G.abyS=1+Math.floor(Math.random()*1e9);G.ct=rollContracts(G.visit);G.enc=rollEnc(G.visit);G.ms=msBlank();G.mt={};G.pools=[];G.corpses=[];G.revq=[];G.lastMod='';G.reaperT=-1;
   for(const p of G.players){p.sold=0;petReturn(p.pet);p.ward=0;p.hot=null;p.kx=p.ky=0;recalc(p);petSync(p.pet)}closeMenus();partyDepth();G.nextFloor=G.maxDepth;
@@ -1518,11 +1529,11 @@ function enterTown(wiped){const lose=wiped?(hasMod(7)?.5:DF().lose):0;runSummary
   else reviveAll(.5);
   banner('Valdoria',`Piso más hondo: ${G.maxDepth}`,2.5);{const se=season();if(se&&!G.seaT){G.seaT=1;toast(`${SEASON[se].n}: ${SEASON[se].d}`,SEASON[se].col)}}autosave(0,true);
 }
-const RET_PORTAL={x:21.5*TILE,y:16*TILE};
+const RET_PORTAL={x:34.5*TILE,y:27.5*TILE};
 function restoreFloor(){const r=G.ret;if(!r)return;G.ret=null;closeMenus();G.depth=r.depth;G.fseed=r.fseed;G.map=r.map;G.enemies=r.en;G.loot=r.loot;G.dormant=r.dor;
   G.proj=[];G.fx=[];G.npcs=r.map.wander?[wanderNPC(r.map)]:[];G.meteors=[];G.minions=[];G.ebombs=[];G.pools=[];G.corpses=[];G.revq=[];G.mt={};G.ms=msBlank();setLantern();SND.play('portal');placeParty({x:r.x,y:r.y});banner(`Piso ${r.depth}`,'De vuelta',1.8);autosave(0,true)}
 const recLvl=d=>d<=10?1+Math.round(d*.8):Math.round(9+(d-10)*.35);
-function enterFloor(d){if(G.wk&&d!==wkDepth(G.wk))wkDone(d);if(d>=ARENA_AT){evoFloor(ARENA_AT);return enterArena()}if(G.depth>0&&d>G.depth){ctProg('deep',1);encProg('mfloor',1)}
+function enterFloor(d){cpTempOut();if(G.wk&&d!==wkDepth(G.wk))wkDone(d);if(d>=ARENA_AT){evoFloor(ARENA_AT);return enterArena()}if(G.depth>0&&d>G.depth){ctProg('deep',1);encProg('mfloor',1)}
   for(const q of G.players)if(q.merc){if(q.merc.hero)cpSync(q);else q.merc.floors=Math.max(0,q.merc.floors-1)}mercFlush();
   for(const q of G.players){q.afk=false;q.fish=null;q.saUsed=false;q.saT=0;q.ward=0;q.kx=0;q.ky=0;q.hot=null}reviveAll(.3);closeMenus();G.depth=d;G.ret=null;for(const p of G.players){p.segU=0;p.prU=0;if(!p.merc&&d>(p.maxD||1))addFame(p,3);p.maxD=Math.max(p.maxD||1,d)}partyDepth();evoFloor(d);
   G.fseed=G.wk&&d===wkDepth(G.wk)?(G.wk*7919+17)%2000000000:Math.floor(Math.random()*2e9);if(G.wk)G.wkT0=G.t;G.map=genFloor(d,G.fseed);
@@ -1539,7 +1550,7 @@ function enterFloor(d){if(G.wk&&d!==wkDepth(G.wk))wkDone(d);if(d>=ARENA_AT){evoF
   if(Math.random()<.6){const rr=pick(m.rooms.filter(q=>q!==m.startRoom)),pos=randFloorIn(rr);spawnEnemy('santuario',pos.x,pos.y,d,false);G.enemies[G.enemies.length-1].sk=ri(0,SHRINES.length-1)}
   mProg(q=>{if(q.t==='floor')q.c=Math.max(q.c,d)});
   if(d%5===0){const bp=randFloorIn(m.stairRoom);const bk=BOSSES[(Math.floor(d/5)-1)%BOSSES.length];spawnEnemy(bk,bp.x,bp.y,d,false);banner(`Piso ${d}`,`${ETYPES[bk].name} vigila la escalera`,3)}
-  else if(abyLast(d))abyBossSpawn(m,d);
+  else if(abyLast(d)){abyBossSpawn(m,d);G.allHeroes=d}
   else banner(G.wk?'Cripta de la semana':`Piso ${d}`,(abyOf(d)?`Abismo ${ROMAN[abyOf(d)]} · `:'')+theme(d).name+(modOf(d)&&!G.wk?` · ${MODS[modOf(d)-1].n}`:''),2.2);
   {const L=modsAt(d),key=L.join('.');if(key!==G.lastMod){G.lastMod=key;const A=abyOf(d);if(A&&!G.wk){const np=L.filter(id=>MODS[id-1].t==='p').length;toast(`Abismo ${ROMAN[A]}: rigen ${L.length} modificador${L.length>1?'es':''} (${np} a favor). ${modListText(L)}.`,ABY[A-1].col)}else if(L.length){const M=MODS[L[0]-1];toast(`${G.wk?'Cripta de la semana':'Modificador del tramo'}: ${M.n}. ${M.d}.`,MT[M.t].c)}else if(d>MOD_MAX)toast('Desde aquí ya no hay modificadores de tramo.','#a59cb0')}}
   {const CAP=hasMod(1)?82:55,norm=G.enemies.filter(e=>!e.T.prop&&!e.T.boss&&!e.T.mimic&&!e.sub&&!e.key);if(norm.length>CAP){const f=norm.length/CAP;
@@ -1694,6 +1705,7 @@ function doAction(p,a){if(p&&Array.isArray(a)&&G.map&&(a[0]==='emo'||a[0]==='pin
   else if(cmd==='cpjoin'){if(!town||p.merc)return;cpJoin(p,clamp(a[1]|0,0,NCLS-1))}
   else if(cmd==='cpbye'){if(p.merc)return;cpBye(p,clamp(a[1]|0,0,NCLS-1))}
   else if(cmd==='cpbest'){if(!town||p.merc)return;const n=cpGearUp(p,true);ftext(p.x,p.y-26,n?`Tus héroes se pusieron ${n} pieza${n>1?'s':''} mejor${n>1?'es':''}`:'Tus héroes ya llevan lo mejor que tienes','#9be08a',12)}
+  else if(cmd==='cpch'){if(p.merc)return;cpCharIn(p,a)}
   else if(cmd==='cpwd'){if(!town||p.merc||!isRemote(p)||typeof a[2]!=='string')return;cpTakeRemote(p,clamp(a[1]|0,0,NCLS-1),a[2])}
   else if(cmd==='mfire'){const q=G.players.find(z=>z.i===(a[1]|0)&&z.merc&&z.merc.owner===p.i);if(!q)return;if(q.merc.hero)cpSync(q);removePlayer(q);toast(`${q.merc.name} volvió al gremio.`,'#c9a46a')}
   else if(cmd==='fuse'||cmd==='fuseall'){if(!town)return;const J=G.npcs.findIndex(n=>n.jew);let i=a[1]|0,g=p.bag[i];if(!g||g.k!==4)return;const t=g.t,q=g.rar;let n=0,r=0;
@@ -1990,7 +2002,7 @@ function decPets(a){const out=PETS.map(()=>null);let ap=0,ptr=null;if(Array.isAr
   return {pets:out,apet:ap,ptr}}
 function heroPetLine(h,slot){const k=h.pets&&h.pets[h.apet]?h.apet:PET_STARTERS[slot%4],d=h.pets&&h.pets[k];return `Mascota: ${petName(k,d?d.l:1)}${d?` (Nv ${d.l})`:''}`}
 // ---------- corral del Criadero (solo adorno) ----------
-const PEN={x0:20.3*TILE,y0:18.4*TILE,x1:24.7*TILE,y1:21.8*TILE};
+const PEN={x0:40.6*TILE,y0:27.6*TILE,x1:45*TILE,y1:31*TILE};
 function penTick(dt){if(!G.map||!G.map.town){G.pen=null;return}G.pen=G.pen||{};const keep=new Set();let n=0;
   for(const p of G.players){if(!Array.isArray(p.pets))continue;p.pets.forEach((d,k)=>{if(!d||k===p.apet||n>=12)return;n++;const key=p.i+':'+k;keep.add(key);let e=G.pen[key];
     if(!e){e=G.pen[key]={sp:k,x:rnd(PEN.x0+30,PEN.x1-24),y:rnd(PEN.y0+36,PEN.y1-16),wt:rnd(0,2),face:rnd(0,6),owner:p.i};e.tx=e.x;e.ty=e.y}
@@ -2542,7 +2554,8 @@ function controllerStep(c){const p=ctrlPlayer(c);if(!p||!G.map)return;const I=in
         if(I.atkP){const L=cineEntries(p).filter(o=>o.cat===(m.cat|0));cineOpen(L[clamp(m.cur|0,0,L.length-1)])}}
       else{if(I.leftP)m.cur=Math.max(0,(m.cur|0)-1);if(I.rightP)m.cur=(m.cur|0)+1}if(I.invP){m.tab=((m.tab|0)+1)%3;m.cur=0}if(I.sklP)c.menu=null}
     else if(m.type==='fame'){if(I.sklP||I.invP||I.atkP)c.menu=null}
-    else if(m.type==='inn'){const cols=m.cols||3;if(I.leftP)m.cur=(m.cur+NCLS-1)%NCLS;if(I.rightP)m.cur=(m.cur+1)%NCLS;if(I.upP)m.cur=Math.max(0,m.cur-cols);if(I.downP)m.cur=Math.min(NCLS-1,m.cur+cols);if(I.atkP)innPick(c,p,m.cur);else if(I.sklP||I.invP)c.menu=null}
+    else if(m.type==='inn'){if(I.invP)m.tab=1-(m.tab|0);else if((m.tab|0)===1){const busy=new Set([...heroBusy(),...expBusy(p)]);if(I.leftP)m.ecur=((m.ecur|0)+NCLS-1)%NCLS;if(I.rightP)m.ecur=((m.ecur|0)+1)%NCLS;if(I.upP)m.ed=Math.min(expAcct(p).maxD,(m.ed|0)+1);if(I.downP)m.ed=Math.max(1,(m.ed|0)-1);if(I.atkP)expToggle(m,m.ecur|0,busy);if(I.rolP)m.em=((m.em|0)+1)%EXP_MIN.length;if(I.potP)expGo(c,p,m);if(I.sklP)c.menu=null}
+      else{const cols=m.cols||3;if(I.leftP)m.cur=(m.cur+NCLS-1)%NCLS;if(I.rightP)m.cur=(m.cur+1)%NCLS;if(I.upP)m.cur=Math.max(0,m.cur-cols);if(I.downP)m.cur=Math.min(NCLS-1,m.cur+cols);if(I.atkP)innPick(c,p,m.cur);else if(I.sklP)c.menu=null}}
     else if(m.type==='hero'){const mine=cpOf(p).some(q=>q.cls.i===m.k);if(I.atkP&&m.k!==p.cls.i)heroAct(c,p,m);else if(I.potP&&mine)heroGear(c,p);else if(I.sklP||I.invP)c.menu=m.back?{type:'inn',cur:m.k}:null}
     else if(m.type==='wander'){if(I.upP)m.cur=Math.max(0,m.cur-1);if(I.downP)m.cur=Math.min(2,m.cur+1);if(I.atkP)ctrlAct(c,['wbuy',m.cur]);if(I.sklP||I.invP)c.menu=null}
     else if(m.type==='emote'){if(I.upP)m.cur=Math.max(0,m.cur-1);if(I.downP)m.cur=Math.min(EMOTES.length-1,m.cur+1);if(I.atkP){ctrlAct(c,['emo',m.cur]);c.menu=null}else if(I.sklP||I.invP||I.emoP)c.menu=null}
@@ -2556,7 +2569,7 @@ function controllerStep(c){const p=ctrlPlayer(c);if(!p||!G.map)return;const I=in
         if(ni>=0){p.near=G.npcs[ni];
           if(I.sklP){intent.sklP=false;const kind=G.npcs[ni].kind;
             if(ni===0)c.menu={type:'shop',tab:0,cur:0};else if(ni===1)c.menu={type:'merchant',tab:0,cur:0};else if(kind==='altar')c.menu={type:'altar',cur:p.cls.i};
-            else if(kind==='board'){ensureMs(p);c.menu={type:'board',cur:0}}else if(kind==='sign')c.menu={type:'floor',val:G.nextFloor};else if(G.npcs[ni].tav)c.menu={type:'tavern',tab:0,cur:p.cls.i};else if(G.npcs[ni].jew)c.menu={type:'jewel',cur:0};else if(G.npcs[ni].inn)c.menu={type:'inn',cur:0};else if(kind==='hero'){c.menu={type:'hero',k:G.npcs[ni].ci,street:!G.npcs[ni].home};const L=HERO_TALK[CLASSES[G.npcs[ni].ci].id];if(L){G.npcs[ni].say=L[Math.floor(Math.random()*L.length)];G.npcs[ni].sayT=3}}else if(kind==='dock')ctrlAct(c,['afk']);else if(kind==='colis')ctrlAct(c,['colis']);else if(kind==='farol')c.menu={type:'diary',tab:0,cur:0};else if(kind==='fame')c.menu={type:'fame'};else if(kind==='chest')c.menu={type:'stash',tab:0,cur:0};else if(ni===2)c.menu={type:'keeper',tab:0,cur:0};else ctrlAct(c,['npc',ni])}}}}}
+            else if(kind==='board'){ensureMs(p);c.menu={type:'board',cur:0}}else if(kind==='sign')c.menu={type:'floor',val:G.nextFloor};else if(G.npcs[ni].tav)c.menu={type:'tavern',tab:0,cur:p.cls.i};else if(G.npcs[ni].jew)c.menu={type:'jewel',cur:0};else if(G.npcs[ni].inn){c.menu={type:'inn',cur:0,tab:0};expClaim(c,p)}else if(kind==='hero'){c.menu={type:'hero',k:G.npcs[ni].ci,street:!G.npcs[ni].home};const L=HERO_TALK[CLASSES[G.npcs[ni].ci].id];if(L){G.npcs[ni].say=L[Math.floor(Math.random()*L.length)];G.npcs[ni].sayT=3}}else if(kind==='dock')ctrlAct(c,['afk']);else if(kind==='colis')ctrlAct(c,['colis']);else if(kind==='farol')c.menu={type:'diary',tab:0,cur:0};else if(kind==='fame')c.menu={type:'fame'};else if(kind==='chest')c.menu={type:'stash',tab:0,cur:0};else if(ni===2)c.menu={type:'keeper',tab:0,cur:0};else ctrlAct(c,['npc',ni])}}}}}
   if(p.near)showTip(tipKey(p.near));
   if(MODE==='client'){if(intent.rolP)c.cnt[3]++;if(intent.atkP)c.cnt[0]++;if(intent.sklP)c.cnt[1]++;if(intent.potP)c.cnt[2]++;
     const pres={i:[R(intent.mx*100),R(intent.my*100),intent.atk?1:0,c.cnt[0],c.cnt[1],c.cnt[2],c.cnt[3]],c:c.cmds,e:lastEvId};
@@ -2835,7 +2848,7 @@ function clientApply(s){
   G.pings=Array.isArray(s.pg)?s.pg.slice(0,8).map(a=>({x:+a[0]||0,y:+a[1]||0,w:a[2]|0,k:clamp(a[3]|0,0,3),eid:a[4]|0,t:(a[5]|0)/10})):[];
   G.maxDepth=Math.max(1,f[3]|0);G.nextFloor=clamp(f[5]|0,1,G.maxDepth);G.retDepth=f[6]|0;G.keys=f[7]|0;G.arenaW=f[8]|0;if(G.visit!==f[4]){G.visit=f[4]|0;closeMenus()}
   const seen=new Set();
-  for(const a of s.p||[]){const slot=a[0]|0;if(slot<0||slot>11)continue;seen.add(slot);let p=G.players.find(q=>q.i===slot);
+  for(const a of s.p||[]){const slot=a[0]|0;if(slot<0||slot>23)continue;seen.add(slot);let p=G.players.find(q=>q.i===slot);
     if(!p||p.cls.i!==a[13]){const keep=p?{gold:p.gold,bag:p.bag,lvls:p.lvls,sold:p.sold}:null;if(p)removePlayer(p);
       p=addPlayer(clamp(a[13]|0,0,NCLS-1),slot,null,null);p.x=a[1];p.y=a[2];p.pet.x=a[1];p.pet.y=a[2];if(keep)Object.assign(p,keep);lastDetObj=null;
       if(ctrls[0]&&ctrls[0].slot===slot)ctrls[0].menu=null}
@@ -2843,7 +2856,7 @@ function clientApply(s){
     p.tx=a[1];p.ty=a[2];p.face=a[3]/100;p.hp=a[4];p.maxhp=a[5];p.mp=a[6];p.maxmp=a[7];p.lvl=a[8];p.xpPct=a[9];p.pots=sanPots(a[10]);
     const fl=a[11];p.down=!!(fl&1);if(fl&2&&p.swingT<=0)p.swingT=.16;if(fl&4)p.spin=.1;if(fl&8)p.hurtT=.1;p.buffV=!!(fl&16);p.shieldV=!!(fl&32);p.rollV=!!(fl&64);p.afkV=!!(fl&128);if(fl&256&&!(p.castT>0))p.castT=.14;if(fl&512&&!(p.chT>0))p.chT=.35;p.wardV=!!(fl&1024);p.invV=!!(fl&2048);p.rev=a[12]/100;
     p.fish=a[16]?{bx:a[14],by:a[15],ph:a[16]===2?'bite':'wait'}:null;
-    if(a[17]){const ni=a[19]|0,hk=ni>=100?clamp(ni-100,0,NCLS-1):-1;p.merc={owner:(a[17]|0)-1,floors:a[18]|0,ni,hero:hk>=0?1:0,name:hk>=0?HERO_LORE[CLASSES[hk].id].nm:MERC_NAMES[ni]||'Aventurero'};G.pets=G.pets.filter(q=>q!==p.pet)}else p.merc=null;
+    if(a[17]){const ni=a[19]|0,hk=ni>=100?clamp(ni%100,0,NCLS-1):-1;p.merc={owner:(a[17]|0)-1,floors:a[18]|0,ni,hero:hk>=0?1:0,temp:ni>=200?1:0,name:hk>=0?HERO_LORE[CLASSES[hk].id].nm:MERC_NAMES[ni]||'Aventurero'};G.pets=G.pets.filter(q=>q!==p.pet)}else p.merc=null;
     p.offV=!!(fl&4096);p.emoK=a[23]|0;p.evc=a[24]|0;p.cosV=a[25]|0;p.rank=a[20]|0;p.ttl=a[21]==null?-1:a[21]|0;p.dye=a[22]==null?-1:a[22]|0}
   for(const p of G.players.slice())if(!seen.has(p.i))removePlayer(p);
   for(const a of s.pt||[]){const p=G.players.find(q=>q.i===a[0]);if(!p)continue;const pt=p.pet;if(Math.hypot(pt.x-a[1],pt.y-a[2])>200){pt.x=a[1];pt.y=a[2]}
@@ -3033,11 +3046,11 @@ function drawMap(Z){const m=G.map,vw=VW/Z,vh=VH/Z;
   ctx.fillStyle='#0d0b10';ctx.beginPath();ctx.moveTo(e.x-30,e.y+6);ctx.lineTo(e.x-30,e.y-12);ctx.arc(e.x,e.y-12,30,Math.PI,0);ctx.lineTo(e.x+30,e.y+6);ctx.fill();
   const gl=.25+.1*Math.sin(G.t*2);ctx.fillStyle=`rgba(94,200,192,${gl})`;ctx.beginPath();ctx.arc(e.x,e.y-4,14,0,7);ctx.fill();
   ctx.fillStyle='#ebe3d3';ctx.font='15px "Pirata One", Georgia, serif';ctx.textAlign='center';ctx.fillText('Criptas',e.x,e.y-40);
-  ctx.font='600 11px "Alegreya Sans", sans-serif';ctx.fillStyle='rgba(235,227,211,.75)';ctx.fillText('Estanque · atacar para pescar',7.5*TILE,23.6*TILE);
+  ctx.font='600 11px "Alegreya Sans", sans-serif';ctx.fillStyle='rgba(235,227,211,.75)';ctx.fillText('Estanque · atacar para pescar',8.5*TILE,32.7*TILE);drawTownProps();
   if(G.retDepth){const q=RET_PORTAL,t=G.t;ctx.fillStyle='rgba(94,200,192,.18)';ctx.beginPath();ctx.ellipse(q.x,q.y,26,26,0,0,7);ctx.fill();ctx.lineWidth=3;
     for(let k=0;k<3;k++){ctx.strokeStyle=`rgba(94,200,192,${.45+.2*k})`;ctx.beginPath();ctx.arc(q.x,q.y,8+k*6,t*(2+k)+k,t*(2+k)+k+3.8);ctx.stroke()}
     ctx.textAlign='center';ctx.font='14px "Pirata One", Georgia, serif';ctx.fillStyle='#bff0ff';ctx.fillText(`Portal al piso ${G.retDepth}`,q.x,q.y-34)}}
-function drawDock(){const x0=6.7*TILE,x1=8.3*TILE,y0=16.15*TILE,y1=18.1*TILE;
+function drawDock(){const x0=7.7*TILE,x1=9.3*TILE,y0=25.15*TILE,y1=27.1*TILE;
   ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(x0+3,y0+4,x1-x0,y1-y0);for(const px of[x0+2,x1-6])for(const py of[y1-6,y0+(y1-y0)*.5]){ctx.fillStyle='#4a3420';ctx.fillRect(px,py,4,10)}
   for(let k=0;k*7<y1-y0;k++){ctx.fillStyle=k%2?'#8a6a48':'#7a5c3c';ctx.fillRect(x0,y0+k*7,x1-x0,6);ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(x0,y0+k*7+5,x1-x0,1)}
   ctx.fillStyle='#4a3420';ctx.fillRect(x1+2,y0-14,3,20);ctx.fillStyle='#8a6a48';ctx.fillRect(x1-6,y0-22,22,11);ctx.fillStyle='#2a1d12';ctx.font='9px "Pirata One", Georgia, serif';ctx.textAlign='center';ctx.fillText('Muelle',x1+5,y0-14)}
@@ -3047,7 +3060,7 @@ function drawBuilding(b){const X=b.x*TILE,Y=b.y*TILE,W=b.w*TILE,H=b.h*TILE,t=G.t
     tavern:{wall:'#5e4c3e',wall2:'#4e3e32',roof:'#6a2e22',roof2:'#5a261c',trim:'#3a2a1e'},
     jewel:{wall:'#6a5a7a',wall2:'#5a4a6a',roof:'#3a2a5a',roof2:'#2e2248',trim:'#2a1e3a'},
     temple:{wall:'#c99a68',wall2:'#b4875a',roof:'#4f7a3e',roof2:'#43683a',trim:'#6a4a2c'},
-    inn:{wall:'#8a6a48',wall2:'#7a5a3c',roof:'#34466a',roof2:'#2a3a5a',trim:'#3a2818'}}[b.kind];
+    inn:{wall:'#8a6a48',wall2:'#7a5a3c',roof:'#34466a',roof2:'#2a3a5a',trim:'#3a2818'}}[b.kind]||DECO_PAL[b.deco%DECO_PAL.length];
   const wy=Y+H*.38,wh=H-H*.38;
   ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(X+4,Y+H-2,W,8);
   ctx.fillStyle=pal.wall;ctx.fillRect(X,wy,W,wh);
@@ -3076,6 +3089,7 @@ function drawBuilding(b){const X=b.x*TILE,Y=b.y*TILE,W=b.w*TILE,H=b.h*TILE,t=G.t
     for(const lx of[X+10,X+W-10]){ctx.fillStyle='#2a1d12';ctx.fillRect(lx-1,wy+2,2,8);ctx.fillStyle=`rgba(255,190,90,${.6+.3*Math.sin(t*6+lx)})`;ctx.fillRect(lx-3,wy+10,6,7)}
     for(const bx of[X+W+2,X+W+14]){ctx.fillStyle='#6a4a2c';ctx.beginPath();ctx.ellipse(bx,Y+H-9,6,9,0,0,7);ctx.fill();ctx.fillStyle='#3a2a1e';ctx.fillRect(bx-6,Y+H-13,12,1.5);ctx.fillRect(bx-6,Y+H-6,12,1.5)}}
   if(b.kind==='inn'){drawInnDeco(b,X,Y,W,H,wy,dx);drawInnYard(b)}
+  if(b.deco!=null)drawDecoB(b,X,Y,W,H,wy,dx);
   if(b.kind==='temple'){ctx.fillStyle='#f2e6cc';ctx.beginPath();ctx.arc(dx,Y+2,13,0,7);ctx.fill();ctx.strokeStyle='#6a4a2c';ctx.lineWidth=2;ctx.stroke();
     ctx.fillStyle='#8a5a3a';ctx.beginPath();ctx.ellipse(dx,Y+6,5,4,0,0,7);ctx.fill();for(const[ox,oy]of[[-6,-1],[-2.2,-5],[2.2,-5],[6,-1]]){ctx.beginPath();ctx.arc(dx+ox,Y+2+oy,2.2,0,7);ctx.fill()}
     ctx.fillStyle=`rgba(155,224,138,${.25+.2*Math.sin(t*2)})`;ctx.beginPath();ctx.arc(dx,Y+2,17,0,7);ctx.fill()}
@@ -4426,7 +4440,7 @@ function drawHUD(){
   const py=TOUCH?10:VH-ph-12;let x=TOUCH?12:VW/2-(pw*n+gap*(n-1))/2;
   for(const p of HU){ctx.fillStyle='rgba(12,10,16,.82)';ctx.fillRect(x,py,pw,ph);ctx.fillStyle=p.cls.color;ctx.fillRect(x,py,3,ph);
     const mine=MODE!=='local'&&ctrls.some(c=>c.slot===p.i);
-    ctx.font='700 11px "Alegreya Sans", sans-serif';const right=p.merc?(p.merc.hero?`Nv ${p.lvl} · héroe`:`Nv ${p.lvl} · ${p.merc.floors} pisos`):`Nv ${p.lvl} · ${p.gold} oro`,rw=ctx.measureText(right).width;
+    ctx.font='700 11px "Alegreya Sans", sans-serif';const right=p.merc?(p.merc.hero?`Nv ${p.lvl} · ${p.merc.temp?'de visita':'héroe'}`:`Nv ${p.lvl} · ${p.merc.floors} pisos`):`Nv ${p.lvl} · ${p.gold} oro`,rw=ctx.measureText(right).width;
     ctx.textAlign='left';ctx.font=`${TOUCH?14:17}px "Pirata One", Georgia, serif`;ctx.fillStyle=p.cls.color;ctx.fillText(fit(p.merc?`${p.merc.name} · ${p.cls.name}`:`J${p.i+1}${mine?' (tú)':''} ${offV(p)?'· sin conexión':evoTitle(p)}`,pw-rw-24),x+10,py+(TOUCH?15:19));
     ctx.font='700 11px "Alegreya Sans", sans-serif';ctx.fillStyle='#f0d24a';ctx.textAlign='right';ctx.fillText(right,x+pw-8,py+(TOUCH?14:18));
     const bw=pw-18;const hb=(yy,f,c,t)=>{ctx.fillStyle='#000';ctx.fillRect(x+10,yy,bw,9);ctx.fillStyle=c;ctx.fillRect(x+10,yy,bw*clamp(f,0,1),9);
@@ -4927,10 +4941,10 @@ function drawPasv(c,p,r,m,B,b){const pad=14,iw=r.w-pad*2,bh=BH(),by=r.y+r.h-bh-1
     if(two){ctx.font='700 12.5px "Alegreya Sans", sans-serif';ctx.fillStyle=R.ok?'#ebe3d3':'#8a8394';ctx.fillText(fit(nm,iw-8),x0+8,y+12);ctx.font='500 11px "Alegreya Sans", sans-serif';ctx.fillStyle=R.ok?'#9be08a':'#6e6878';ctx.fillText(fit(ds,iw-24),x0+24,y+25)}
     else{ctx.font='700 11.5px "Alegreya Sans", sans-serif';ctx.fillStyle=R.ok?'#ebe3d3':'#8a8394';ctx.fillText(fit(`${nm}: ${ds}`,iw-8),x0+8,y+lh*.72)}y+=lh}
   btn(x0,by,iw,bh,`${kl(c,'pot')}Volver`,()=>{m.pas=false},false,false)}
-function drawAdvBars(p,x,py,pw,ph){const ms=mercsOf(p);if(!ms.length)return;const full=p.bag&&p.bag.length>=bagCap(p);
+function drawAdvBars(p,x,py,pw,ph){const all=mercsOf(p),tmp=all.filter(q=>q.merc.temp),ms=all.filter(q=>!q.merc.temp);if(tmp.length){const up=tmp.filter(q=>!q.down);ms.push({merc:{name:`+${tmp.length} héroes de visita`},cls:{name:`${up.length} en pie`,color:'#ffd27a'},lvl:'',hp:up.reduce((a,q)=>a+q.hp,0),maxhp:tmp.reduce((a,q)=>a+q.maxhp,0)||1,down:!up.length,sum:1})}if(!ms.length)return;const full=p.bag&&p.bag.length>=bagCap(p);
   ms.forEach((q,k)=>{const w=Math.min(pw,170),h=12,y=TOUCH?py+ph+3+(full?17:0)+k*(h+2):py-(full?17:0)-(k+1)*(h+2)-2;
     ctx.fillStyle='rgba(12,10,16,.82)';ctx.fillRect(x,y,w,h);ctx.fillStyle=q.down?'#55505c':'#8a3a30';ctx.fillRect(x+1,y+1,(w-2)*clamp(q.hp/q.maxhp,0,1),h-2);ctx.fillStyle=q.cls.color;ctx.fillRect(x,y,2,h);
-    ctx.font='700 9px "Alegreya Sans", sans-serif';ctx.textAlign='left';ctx.fillStyle='#ebe3d3';ctx.fillText(fit(`${q.merc.name} · ${q.cls.name} · Nv ${q.lvl}${q.down?' · caído':''}`,w-8),x+5,y+9)})}
+    ctx.font='700 9px "Alegreya Sans", sans-serif';ctx.textAlign='left';ctx.fillStyle='#ebe3d3';ctx.fillText(fit(q.sum?`${q.merc.name} · ${q.cls.name}`:`${q.merc.name} · ${q.cls.name} · Nv ${q.lvl}${q.down?' · caído':''}`,w-8),x+5,y+9)})}
 function drawAch(c,p,r,m){panelBg(r,p,c,`J${p.i+1} · Logros`);tabsRow(r,['Bolsa',`Personaje${p.pts>0?` (${p.pts})`:''}`,'Logros'],2,k=>{m.tab=k});const pad=14,iw=r.w-pad*2,bh=BH(),by=r.y+r.h-bh-10;
   const n=ACH.length,got=ACH.filter((A,k)=>p.au&(1<<k)).length;m.acur=clamp(m.acur|0,0,n-1);
   ctx.textAlign='left';ctx.font='700 12px "Alegreya Sans", sans-serif';ctx.fillStyle='#c9a04a';
@@ -5454,9 +5468,9 @@ function cineIntro(){const S=[];
     cFarol(c.W*.7,c.H*.68,2.4*c.s,false,c.k<.75);if(c.k>.75)cGlow(c.W*.7,c.H*.5,220*c.s,'rgba(255,200,110,.5)');
     cPerson(lerp(c.W*.26,c.W*.56,k),c.H*.69,2.3*c.s,'#5a5048','#f1cfa8','',0,{mov:k<1,ember:[9,-2]})},
     'A la mañana siguiente, una niña de seis años trepó desde el fondo de un pozo con una brasa que no la quemaba. Se llamaba Ada. Pusieron la brasa en un farol de la plaza, y esa noche lo de abajo se calló.'));
-  S.push(shot(c=>{cTown(c,lerp(12,22,c.k)*TILE,13*TILE,1.3*c.s,0);cVignette(c,.45)},
+  S.push(shot(c=>{cTown(c,lerp(28,46,c.k)*TILE,17*TILE,1.3*c.s,0);cVignette(c,.45)},
     'Sobre las ruinas quedó un pueblo pequeño que guardó el nombre: el Último Farol. Durante tres siglos, la Guardia del Farol selló los pozos y cuidó la llama.'));
-  S.push(shot(c=>{cTown(c,16.5*TILE,13*TILE,lerp(1.5,1.8,c.k)*c.s,.45);const f=Math.abs(Math.sin(c.T*7)*Math.sin(c.T*2.3));ctx.fillStyle=`rgba(0,0,0,${.3*f})`;ctx.fillRect(0,0,c.W,c.H);
+  S.push(shot(c=>{cTown(c,37*TILE,17.5*TILE,lerp(1.5,1.8,c.k)*c.s,.45);const f=Math.abs(Math.sin(c.T*7)*Math.sin(c.T*2.3));ctx.fillStyle=`rgba(0,0,0,${.3*f})`;ctx.fillRect(0,0,c.W,c.H);
     for(let k=0;k<3;k++)cEnemy(k===1?'zombi':k?'goblin':'esqueleto',c.W*(.2+k*.3),c.H*.78-c.k*c.H*.2,2.6*c.s,-Math.PI/2,{a:.9});
     ctx.font=`italic 600 ${Math.round(17*c.s)}px "Alegreya Sans", sans-serif`;ctx.textAlign='center';ctx.fillStyle=`rgba(200,170,255,${.45+.4*Math.sin(c.T*2)})`;ctx.fillText('…bajen… bajen…',c.W*.5+Math.sin(c.T*.8)*50*c.s,c.H*.3)},
     'Este otoño la llama empezó a parpadear. Los muertos suben, los goblins cavan hacia arriba y por las noches un susurro llama a la gente por su nombre. La Guardia cayó casi entera.'));
@@ -5544,10 +5558,10 @@ function cineAbyBoss(A){const B=ABY[A-1];if(!B)return null;const d=abyBase(A)+AB
   S.push(shot(c=>{cCard(c,hexA(B.col,.2));fig(c,c.W/2,.6)},ABY_EXTRA[A-1]));return S}
 // ---------- lugares ----------
 function cinePlace(id){const hk=myHeroK();
-  if(id==='pueblo'){const parts=LORE_TOWN.split('; ');return [shot(c=>{cTown(c,lerp(8,30,c.k)*TILE,9.5*TILE,1.8*c.s,0);cVignette(c,.4)},'',{title:'Valdoria',sub:'El pueblo del Último Farol',ty:.3,min:4}),
-    shot(c=>{cTown(c,lerp(9,22,c.k)*TILE,10*TILE,2.1*c.s,0);cVignette(c,.45)},parts.slice(0,3).join('; ')+'.'),
-    shot(c=>{cTown(c,lerp(30,38,c.k)*TILE,lerp(10,18,c.k)*TILE,2.1*c.s,0);cVignette(c,.45)},parts.slice(3).join('; '))]}
-  if(id==='posada')return [shot(c=>{cTown(c,47.5*TILE,10.5*TILE,lerp(1.9,2.4,c.k)*c.s,.42);cVignette(c,.45)},'',{title:'La Posada del Farol',sub:'Donde descansan los héroes',ty:.28,min:4}),
+  if(id==='pueblo'){const parts=LORE_TOWN.split('; ');return [shot(c=>{cTown(c,lerp(10,46,c.k)*TILE,14*TILE,1.5*c.s,0);cVignette(c,.4)},'',{title:'Valdoria',sub:'El pueblo del Último Farol',ty:.3,min:4}),
+    shot(c=>{cTown(c,lerp(24,44,c.k)*TILE,17*TILE,1.8*c.s,0);cVignette(c,.45)},parts.slice(0,3).join('; ')+'.'),
+    shot(c=>{cTown(c,lerp(48,62,c.k)*TILE,lerp(16,28,c.k)*TILE,1.8*c.s,0);cVignette(c,.45)},parts.slice(3).join('; '))]}
+  if(id==='posada')return [shot(c=>{cTown(c,(INN.x+3.5)*TILE,(INN.y+6)*TILE,lerp(1.9,2.4,c.k)*c.s,.42);cVignette(c,.45)},'',{title:'La Posada del Farol',sub:'Donde descansan los héroes',ty:.28,min:4}),
     shot(c=>{cInterior(c);for(let k=0;k<5;k++)cHero((hk+1+k)%NCLS,c.W*(.2+k*.15),c.H*(k%2?.78:.72),2.8*c.s,Math.PI/2+Math.sin(c.T+k)*.5)},'De noche los héroes que no están en tu grupo se juntan aquí a cenar y contar lo que vieron abajo. De día salen a rondar por el pueblo: búscalos cerca de la herrería, el muelle o el Gremio.'),
     shot(c=>{cCrypt(c,10,2.4*c.s,{pan:4});cHero(hk,c.W*.4,c.H*.6,3*c.s,0,{mov:true});cHero((hk+3)%NCLS,c.W*.25,c.H*.62,3*c.s,0,{mov:true});cHero((hk+7)%NCLS,c.W*.55,c.H*.63,3*c.s,0,{mov:true})},'Si les hablas, se suman a tu grupo en lugar de los aventureros. Cada uno pelea con su propio nivel y su propio equipo: toman lo mejor del cofre del pueblo y se ponen lo que encuentran si es mejor que lo suyo.')];
   if(id==='piso1')return [shot(c=>{cCrypt(c,1,2.4*c.s,{pan:4});cHero(hk,c.W*.5,c.H*.6,3*c.s,-Math.PI/2,{mov:true});cVignette(c,.5)},'',{title:'Las criptas',sub:'Piso 1',ty:.3,min:4}),shot(c=>{cCrypt(c,1,2.4*c.s,{pan:2});cEnemy('rata',c.W*.7,c.H*.6,3.6*c.s,Math.PI);cEnemy('esqueleto',c.W*.3,c.H*.58,3.2*c.s,0)},LORE_FLOORS[1])];
@@ -5595,10 +5609,10 @@ function cineWatch(){if(CINE||state!=='play'||!G||!G.map)return;
 // Al sumarse, un héroe ocupa el lugar de un aventurero y pelea con SU nivel y SU equipo (los del personaje de esa clase en tu cuenta).
 // La bolsa es la tuya; lo que lleva puesto es suyo. Toma lo mejor del cofre del pueblo y se pone lo que caiga si le sirve más que lo suyo.
 const INN=BUILDINGS.find(b=>b.kind==='inn');
-const INN_SEATS=[[43.4,10.4],[46.7,10.4],[43.4,11.6],[46.7,11.6],[48.1,10.4],[50.4,10.4],[48.1,11.6],[50.4,11.6],[42.8,12.7],[45,12.8],[49.6,12.8],[50.5,12.8]];
-const INN_TABLES=[[45.05,10.8],[49.4,10.8]],INN_LAMPS=[[43.6,8.6],[47.5,8.4],[50.6,8.6]];
+const IDX=x=>x+INN.x-44,IDY=y=>y+INN.y-5,INN_SEATS=[[43.4,10.4],[46.7,10.4],[43.4,11.6],[46.7,11.6],[48.1,10.4],[50.4,10.4],[48.1,11.6],[50.4,11.6],[42.8,12.7],[45,12.8],[49.6,12.8],[50.5,12.8]].map(([x,y])=>[IDX(x),IDY(y)]);
+const INN_TABLES=[[45.05,10.8],[49.4,10.8]].map(([x,y])=>[IDX(x),IDY(y)]),INN_LAMPS=[[43.6,8.6],[47.5,8.4],[50.6,8.6]].map(([x,y])=>[IDX(x),IDY(y)]);
 // de día: [x, y, cuánto camina (px), lugar]
-const HERO_SPOT=[[9.5,11.5,46,'la herrería'],[5.5,15.4,30,'el estanque'],[24.2,10.6,34,'el almacén de Ozmo'],[14.2,12.4,22,'el Último Farol'],[33.6,11.5,30,'la joyería'],[20.6,4.4,26,'la entrada de las criptas'],[3.6,8.8,26,'la herrería'],[19.6,20.6,24,'el corral de Ilse'],[31.5,21.4,36,'el Coliseo'],[42.2,11.6,26,'el Gremio'],[9.5,16.2,16,'el muelle'],[23.8,23.2,30,'el corral de Ilse']];
+const HERO_SPOT=[[10.5,15.8,46,'la herrería'],[14.5,24.6,30,'el estanque'],[48.5,15.8,34,'el almacén de Ozmo'],[37,15.4,22,'el Último Farol'],[63.5,30.2,30,'la joyería'],[42,5,26,'la entrada de las criptas'],[5.5,15.6,26,'la herrería'],[43,32.4,24,'el corral de Ilse'],[66,35,36,'el Coliseo'],[64,16.4,26,'el Gremio'],[10.5,24.3,16,'el muelle'],[17,37,30,'el molino']];
 const HERO_TALK={guerrero:['No peleo por oro. Si vas a bajar, voy contigo.','El barón todavía me busca. Que me encuentre abajo.'],arquera:['Mi hermano dejó flechas marcadas en las paredes. Ayúdame a seguirlas.','En el norte aprendí a no fallar el primer tiro.'],
   mago:['Leí lo que no debía. Ahora tengo que cerrar lo que Ozmar abrió.','Si me llevas, prometo no incendiar a nadie del grupo.'],clerigo:['El Farol me habló. No voy a dormir tranquila hasta bajar.','Camina a mi lado y nadie se queda atrás.'],
   picara:['El mapa de mi mano brilla cuando hay tesoro. Hoy brilla mucho.','Bajo por el oro. Y por ustedes, pero eso no se lo digas a nadie.'],lancera:['La Guardia no termina mientras la llama arda.','Bajamos para que nadie más tenga que bajar.'],
@@ -5606,15 +5620,49 @@ const HERO_TALK={guerrero:['No peleo por oro. Si vas a bajar, voy contigo.','El 
   samurai:['El ronin huyó hacia el Abismo con la espada de mi maestro.','Un buen grupo es como una buena espada: no se quiebra.'],cazadora:['Mi madre siguió a un vampiro hasta aquí. Yo voy a terminar su cacería.','Los virotes de plata los pongo yo.'],
   chef:['¡Abajo están los mejores ingredientes del mundo!','Nadie de mi grupo pasa hambre. Nunca.'],nigromante:['Los muertos de Valdoria no descansan. Quiero liberarlos.','No mando sobre nadie. Solo escucho.']};
 const isNight=()=>nightA()>.2;
-const cpOf=p=>G&&G.players?G.players.filter(q=>q.merc&&q.merc.hero&&q.merc.owner===p.i):[];
+// ---------- v0.15: el pueblo crece: casas, molino, faroles, puestos y vecinos ----------
+const DECO_PAL=[{wall:'#9a7a5a',wall2:'#8a6a4c',roof:'#7a3a2a',roof2:'#6a3022',trim:'#3a2818'},{wall:'#c9a070',wall2:'#b48a5c',roof:'#8a4a2a',roof2:'#7a3e22',trim:'#5a3a20'},
+  {wall:'#8a8a7a',wall2:'#7a7a6a',roof:'#4a5a3a',roof2:'#3e4e30',trim:'#2e2a22'},{wall:'#7a6a8a',wall2:'#6a5a7a',roof:'#5a3a5a',roof2:'#4a2e4a',trim:'#2a1e2a'},
+  {wall:'#b09070',wall2:'#9a7a5c',roof:'#6a5a4a',roof2:'#5a4a3c',trim:'#3a2e22'},{wall:'#6a7a8a',wall2:'#5a6a7a',roof:'#2e3e5a',roof2:'#26344c',trim:'#1e2430'},{wall:'#8a5a3a',wall2:'#7a4e30',roof:'#5a3a22',roof2:'#4a301c',trim:'#2a1c10'}];
+const TOWN_LAMPS=[[16,18.3],[28,18.3],[50,18.3],[66,18.3],[16,21.9],[28,21.9],[50,21.9],[66,21.9],[37,9.5],[41,9.5],[37,28],[41,28],[22.6,30.8],[56.4,30.8]];
+function drawDecoB(b,X,Y,W,H,wy,dx){const t=G.t;
+  const smoke=(cx)=>{ctx.fillStyle='#4a3e36';ctx.fillRect(cx,Y-26,12,22);ctx.fillStyle='#2e2622';ctx.fillRect(cx-2,Y-28,16,4);for(let k=0;k<3;k++){const ph=(t*.5+k/3+b.x*.13)%1;ctx.fillStyle=`rgba(150,140,135,${.4*(1-ph)})`;ctx.beginPath();ctx.arc(cx+6+Math.sin(ph*6+k)*5,Y-30-ph*40,4+ph*8,0,7);ctx.fill()}};
+  const flowers=()=>{for(const wx of[X+28,X+W-52]){ctx.fillStyle='#4a3420';ctx.fillRect(wx-3,wy+38,30,5);for(let k=0;k<5;k++){ctx.fillStyle=['#e0607a','#f0d24a','#9ad0ff','#ffffff','#e0607a'][k];ctx.beginPath();ctx.arc(wx+2+k*6,wy+37,2,0,7);ctx.fill()}}};
+  if(b.kind==='house'){smoke(X+W-40);flowers()}
+  else if(b.kind==='bakery'){smoke(X+18);ctx.strokeStyle='#3a2818';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(X+W+2,wy+6);ctx.lineTo(X+W+16,wy+6);ctx.stroke();ctx.fillStyle='#d8a050';ctx.beginPath();ctx.ellipse(X+W+16,wy+16,10,6,0,0,7);ctx.fill();ctx.strokeStyle='#8a5a2a';ctx.lineWidth=1.2;for(const o of[-4,0,4]){ctx.beginPath();ctx.moveTo(X+W+16+o-2,wy+12);ctx.lineTo(X+W+16+o+2,wy+20);ctx.stroke()}
+    for(let k=0;k<3;k++){ctx.fillStyle='#c98a3a';ctx.beginPath();ctx.ellipse(X-10,Y+H-8-k*7,8,4,0,0,7);ctx.fill()}}
+  else if(b.kind==='mill'){const cx=X+W/2,cy=Y-6,a=t*.8;ctx.fillStyle='#3a2818';ctx.beginPath();ctx.arc(cx,cy,5,0,7);ctx.fill();
+    for(let k=0;k<4;k++){const an=a+k*Math.PI/2;ctx.save();ctx.translate(cx,cy);ctx.rotate(an);ctx.fillStyle='#5a4030';ctx.fillRect(-2,-62,4,60);ctx.fillStyle='rgba(235,227,211,.85)';ctx.fillRect(2,-60,12,46);ctx.strokeStyle='#5a4030';ctx.lineWidth=1;for(let j=0;j<4;j++){ctx.beginPath();ctx.moveTo(2,-58+j*12);ctx.lineTo(14,-58+j*12);ctx.stroke()}ctx.restore()}
+    for(let k=0;k<3;k++){ctx.fillStyle='#c9b070';ctx.fillRect(X+W+4+k*10,Y+H-12,8,12);ctx.fillStyle='#a8904a';ctx.fillRect(X+W+4+k*10,Y+H-8,8,1.5)}}}
+function drawTownProps(){const t=G.t,T=x=>x*TILE;
+  for(const[x,y]of TOWN_LAMPS){const X=T(x),Y=T(y);shadow(X,Y+8,6);ctx.fillStyle='#2a2630';ctx.fillRect(X-1.5,Y-30,3,36);ctx.fillRect(X-4,Y+4,8,3);ctx.fillStyle='#3e3846';ctx.fillRect(X-5,Y-38,10,9);
+    ctx.fillStyle=`rgba(255,200,110,${.75+.25*Math.sin(t*4+x)})`;ctx.fillRect(X-3,Y-36,6,6)}
+  for(const[x,y,c1]of[[26.5,15.8,'#c0392b'],[52.6,22.8,'#2f8a84'],[32.5,21.9,'#8a5ab8']]){const X=T(x),Y=T(y);shadow(X,Y+10,20);ctx.fillStyle='#6a4a2c';ctx.fillRect(X-22,Y-4,44,14);ctx.fillStyle='#4a3420';ctx.fillRect(X-22,Y-20,3,24);ctx.fillRect(X+19,Y-20,3,24);
+    for(let k=0;k<5;k++){ctx.fillStyle=k%2?'#ebe3d3':c1;ctx.beginPath();ctx.moveTo(X-24+k*9.6,Y-22);ctx.lineTo(X-24+(k+1)*9.6,Y-22);ctx.lineTo(X-24+(k+1)*9.6,Y-14);ctx.lineTo(X-24+(k+.5)*9.6,Y-11);ctx.lineTo(X-24+k*9.6,Y-14);ctx.closePath();ctx.fill()}
+    for(let k=0;k<4;k++){ctx.fillStyle=['#e0604a','#f0d24a','#7ab04a','#d8a050'][k];ctx.beginPath();ctx.arc(X-14+k*9,Y-6,3.4,0,7);ctx.fill()}}
+  {const X=T(35.5),Y=T(30.2);shadow(X,Y+10,18);ctx.fillStyle='#5a5462';ctx.beginPath();ctx.ellipse(X,Y,16,9,0,0,7);ctx.fill();ctx.fillStyle='#1a2a3a';ctx.beginPath();ctx.ellipse(X,Y-1,11,5.5,0,0,7);ctx.fill();
+    ctx.fillStyle='#4a3420';ctx.fillRect(X-14,Y-30,3,30);ctx.fillRect(X+11,Y-30,3,30);ctx.fillStyle='#6a2e22';ctx.beginPath();ctx.moveTo(X-20,Y-28);ctx.lineTo(X,Y-40);ctx.lineTo(X+20,Y-28);ctx.closePath();ctx.fill();ctx.strokeStyle='#8a929c';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X,Y-28);ctx.lineTo(X,Y-12);ctx.stroke();ctx.fillStyle='#7a5434';ctx.fillRect(X-3,Y-14,6,5)}
+  for(const[x,y]of[[14.7,12.4],[52,12.3],[64.4,12.4],[29.4,12.4],[35.4,26.4],[18.4,35.2]]){const X=T(x),Y=T(y);shadow(X,Y+8,8);ctx.fillStyle='#7a5434';ctx.beginPath();ctx.ellipse(X,Y,7,9,0,0,7);ctx.fill();ctx.fillStyle='#4a3020';ctx.fillRect(X-7,Y-4,14,1.5);ctx.fillRect(X-7,Y+3,14,1.5);ctx.fillStyle='#8a6a48';ctx.fillRect(X+8,Y-2,11,10);ctx.strokeStyle='#5a4028';ctx.strokeRect(X+8.5,Y-1.5,10,9)}
+  for(const[x,y]of[[23.4,13.4],[27.6,13.4],[24,27.4],[31.4,27.4],[46.5,38.2]]){const X=T(x),Y=T(y);ctx.fillStyle='#4a3420';ctx.fillRect(X-14,Y-4,28,8);for(let k=0;k<6;k++){ctx.fillStyle=['#e0607a','#f0d24a','#c98aff','#ffffff','#ff9a4a','#e0607a'][k];ctx.beginPath();ctx.arc(X-11+k*4.4,Y-4+Math.sin(t*2+k)*.6,2.4,0,7);ctx.fill()}}
+  {const X=T(18),Y=T(24.2);shadow(X,Y+10,20);ctx.fillStyle='#7a5434';ctx.fillRect(X-20,Y-10,40,14);ctx.fillStyle='#c9b070';ctx.beginPath();ctx.ellipse(X-6,Y-12,9,5,0,0,7);ctx.ellipse(X+7,Y-11,8,5,0,0,7);ctx.fill();ctx.strokeStyle='#3a2818';ctx.lineWidth=3;for(const ox of[-12,12]){ctx.beginPath();ctx.arc(X+ox,Y+6,6,0,7);ctx.stroke()}ctx.fillStyle='#4a3420';ctx.fillRect(X+20,Y-4,14,2)}}
+const VILL_LOOK={Nela:{col:'#a85a3a',hat:'jeweler',skin:'healer'},Tomás:{col:'#8a7a5a',hat:'inn',skin:'merchant'},'Abuela Rut':{col:'#6a5a7a',hat:'healer',skin:'healer'},Pim:{col:'#4a8ac0',hat:'inn',skin:'merchant'},Odo:{col:'#3a4a6a',hat:'jeweler',skin:'merchant'}};
+Object.assign(NPC_LOOK,VILL_LOOK);
+function villagers(){return [
+  {x:32.5*TILE,y:14.4*TILE,name:'Nela',role:'Panadera',col:'#a85a3a',kind:'npc',talk:1,prompt:'Hablar',lines:['¡Pan recién salido! Bueno, eso no lo vendo: es para el Farol.','Ozmo dice que su receta de sopa es de su tatarabuelo. A mí me sale mejor.','Cuando vuelvan de abajo, pasen por pan. Invita la casa.']},
+  {x:15.5*TILE,y:37.2*TILE,name:'Tomás',role:'Molinero',col:'#8a7a5a',kind:'npc',talk:1,prompt:'Hablar',lines:['El molino no para desde que llegaron ustedes: hay mucha harina que moler.','De noche las aspas suenan como el susurro. Ya me acostumbré.','Mi abuelo decía que el viento del valle sopla desde el Farol.']},
+  {x:26*TILE,y:28.6*TILE,name:'Abuela Rut',role:'Vecina',col:'#6a5a7a',kind:'npc',talk:1,prompt:'Hablar',lines:['Yo conocí a Bertoldo de joven. Era más flaco y menos gruñón.','Ponle una vela a la ventana en la Noche de Ánimas, que los de abajo vean el camino.','Ay, niño, no bajes sin comer algo primero.']},
+  {x:30*TILE,y:21.9*TILE,x0:30*TILE,walk:70,name:'Pim',role:'Niño del pueblo',col:'#4a8ac0',kind:'npc',talk:1,prompt:'Hablar',lines:['¡Cuando sea grande voy a ser como tú! Bueno, más alto.','¿Es verdad que abajo hay un dragón? ¿Lo puedo ver?','Mi mamá dice que no me acerque al pozo de la plaza.']},
+  {x:47*TILE,y:33.6*TILE,x0:47*TILE,walk:50,name:'Odo',role:'Farolero',col:'#3a4a6a',kind:'npc',talk:1,prompt:'Hablar',lines:['Enciendo los faroles del pueblo cada noche. El grande no lo toco: ese es de Odalys.','Desde que llegaron, los faroles tiemblan menos.','Si ves que uno se apaga, avísame.']}]}
+
+const cpOf=p=>G&&G.players?G.players.filter(q=>q.merc&&q.merc.hero&&!q.merc.temp&&q.merc.owner===p.i):[];
 const advOf=p=>mercsOf(p).filter(q=>!q.merc.hero);
 const cpChars=p=>MODE==='client'?(heroes.heroe1&&heroes.heroe1.chars||[]):(p.chars||[]);
 function heroBusy(){const s=new Set();if(!G||!G.players)return s;for(const q of G.players){if(!q.merc)s.add(q.cls.i);else if(q.merc.hero)s.add(q.cls.i)}return s}
-function heroNPCs(){const L=[{x:47.5*TILE,y:9.2*TILE,name:'Marta',role:'Posadera',col:'#8a3a3a',kind:'npc',inn:true,prompt:'Posada: los héroes'}];
+function heroNPCs(){const L=[{x:(INN.x+3.5)*TILE,y:(INN.y+4.2)*TILE,name:'Marta',role:'Posadera',col:'#8a3a3a',kind:'npc',inn:true,prompt:'Posada: los héroes'}];
   CLASSES.forEach(C=>L.push({x:0,y:0,kind:'hero',ci:C.i,name:HERO_LORE[C.id].nm,role:C.name,col:C.color,prompt:'Hablar',hide:true}));return L}
-function heroNpcTick(){if(!G||!G.map||!G.map.town)return;const night=isNight(),busy=heroBusy(),t=Date.now()/1000;let si=0;
+function heroNpcTick(){if(!G||!G.map||!G.map.town)return;const night=isNight(),busy=new Set([...heroBusy(),...expLocalBusy()]),t=Date.now()/1000;let si=0;
   for(const n of G.npcs){if(n.kind!=='hero')continue;n.hide=busy.has(n.ci);if(n.hide)continue;
-    if(night){const S=INN_SEATS[si++%INN_SEATS.length],T=INN_TABLES[S[0]<47.5?0:1];n.x=S[0]*TILE;n.y=S[1]*TILE;n.face=S[1]>12?-Math.PI/2:Math.atan2(T[1]-S[1],T[0]-S[0]);n.home=1}
+    if(night){const S=INN_SEATS[si++%INN_SEATS.length],T=INN_TABLES[S[0]<IDX(47.5)?0:1];n.x=S[0]*TILE;n.y=S[1]*TILE;n.face=S[1]>12?-Math.PI/2:Math.atan2(T[1]-S[1],T[0]-S[0]);n.home=1}
     else{const S=HERO_SPOT[n.ci],ph=t*.22+n.ci*1.7;n.x=S[0]*TILE+Math.sin(ph)*S[2];n.y=S[1]*TILE;n.face=Math.cos(ph)>0?0:Math.PI;n.home=0}}}
 function drawHeroNPC(n){if(n.hide)return;const C=CLASSES[n.ci],p=cFigP(n.ci),mov=walkStep(n);p.face=mov?n.face:n.face;p.swingT=0;
   ctx.save();ctx.translate(n.x,n.y);const hy=humanoid({x:0,y:0,col:C.color,skin:SKIN[C.id],hatId:C.id,face:n.face,mov,walk:n.walk||0,flash:false,weapon:(by,fx,fy)=>drawWeapon(p,by,fx,fy)});ctx.restore();
@@ -5626,8 +5674,8 @@ function drawInnYard(b){const t=G.t;// terraza con mesas, bancos y guirnalda de 
   for(const[x,y]of INN_TABLES){const X=x*TILE,Y=y*TILE;shadow(X,Y+6,22);ctx.fillStyle='#6a4a2c';ctx.fillRect(X-26,Y-10,52,18);ctx.fillStyle='#8a6a42';ctx.fillRect(X-26,Y-10,52,4);ctx.fillStyle='#4a3420';ctx.fillRect(X-22,Y+8,4,8);ctx.fillRect(X+18,Y+8,4,8);
     ctx.fillStyle='#e8b04a';ctx.fillRect(X-12,Y-14,7,8);ctx.fillRect(X+6,Y-14,7,8);ctx.fillStyle='#fff6e0';ctx.fillRect(X-12,Y-15,7,2);ctx.fillRect(X+6,Y-15,7,2);ctx.fillStyle='#d8c8a0';ctx.beginPath();ctx.ellipse(X-1,Y-6,6,3,0,0,7);ctx.fill();
     const f=.6+.4*Math.sin(t*6+x);ctx.fillStyle=`rgba(255,200,110,${f})`;ctx.fillRect(X-1,Y-14,2,4)}
-  ctx.strokeStyle='#3a2818';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(INN_LAMPS[0][0]*TILE,INN_LAMPS[0][1]*TILE);ctx.quadraticCurveTo(45.5*TILE,9.3*TILE,INN_LAMPS[1][0]*TILE,INN_LAMPS[1][1]*TILE);ctx.quadraticCurveTo(49.5*TILE,9.3*TILE,INN_LAMPS[2][0]*TILE,INN_LAMPS[2][1]*TILE);ctx.stroke();
-  for(let k=0;k<9;k++){const u=k/8,x=lerp(43.6,50.6,u)*TILE,y=(8.6+Math.sin(u*Math.PI*2)*.35+.55)*TILE,f=.55+.45*Math.sin(t*3+k);ctx.fillStyle=k%3===0?`rgba(255,150,90,${f})`:k%3===1?`rgba(255,220,120,${f})`:`rgba(160,220,255,${f})`;ctx.beginPath();ctx.arc(x,y,2.4,0,7);ctx.fill()}
+  ctx.strokeStyle='#3a2818';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(INN_LAMPS[0][0]*TILE,INN_LAMPS[0][1]*TILE);ctx.quadraticCurveTo(IDX(45.5)*TILE,IDY(9.3)*TILE,INN_LAMPS[1][0]*TILE,INN_LAMPS[1][1]*TILE);ctx.quadraticCurveTo(IDX(49.5)*TILE,IDY(9.3)*TILE,INN_LAMPS[2][0]*TILE,INN_LAMPS[2][1]*TILE);ctx.stroke();
+  for(let k=0;k<9;k++){const u=k/8,x=IDX(lerp(43.6,50.6,u))*TILE,y=(IDY(8.6)+Math.sin(u*Math.PI*2)*.35+.55)*TILE,f=.55+.45*Math.sin(t*3+k);ctx.fillStyle=k%3===0?`rgba(255,150,90,${f})`:k%3===1?`rgba(255,220,120,${f})`:`rgba(160,220,255,${f})`;ctx.beginPath();ctx.arc(x,y,2.4,0,7);ctx.fill()}
   for(const[x,y]of INN_LAMPS){ctx.fillStyle='#2a2028';ctx.fillRect(x*TILE-1.5,y*TILE,3,24)}}
 function drawInnDeco(b,X,Y,W,H,wy,dx){const t=G.t;// letrero de la luna y la cama
   ctx.fillStyle='#2e3c58';ctx.fillRect(dx-15,Y-12,30,26);ctx.strokeStyle='#c9a04a';ctx.lineWidth=1.5;ctx.strokeRect(dx-14.5,Y-11.5,29,25);
@@ -5639,11 +5687,11 @@ function cpMake(p,k){const used=new Set(G.players.map(q=>q.i));let slot=4;while(
   const m=makePlayer(k,slot,null);m.chars=cpChars(p);if(!m.chars[k])m.chars[k]=defaultChar(k);loadChar(m,k);m.bag=[];m.stash=[];m.ptsKeep=m.pts|0;
   m.merc={owner:p.i,floors:0,ni:100+k,name:HERO_LORE[CLASSES[k].id].nm,hero:1};if(potTotal(m)<2)m.pots[0]=Math.max(m.pots[0],3);
   recalc(m);m.hp=m.maxhp;m.mp=m.maxmp;m.x=p.x+rnd(-20,20);m.y=p.y+18;m.face=p.face;m.maxD=p.maxD||1;G.players.push(m);G.players.sort((a,b)=>a.i-b.i);return m}
-function cpSync(m){if(!m||!m.merc||!m.merc.hero)return;const o=G.players.find(q=>q.i===m.merc.owner&&!q.merc);if(!o||!o.chars||o.cls.i===m.cls.i)return;
+function cpSync(m){if(!m||!m.merc||!m.merc.hero||m.merc.temp)return;const o=G.players.find(q=>q.i===m.merc.owner&&!q.merc);if(!o||!o.chars||o.cls.i===m.cls.i)return;
   o.chars[m.cls.i]={lvl:m.lvl,xp:m.xp,next:m.next,st:st(m).slice(),pts:m.pts,pots:m.pots.slice(),sk:m.sk.slice(),act:m.act,w:m.weapon,a:m.armor,r:m.ring||null,m:m.amu||null,ev:m.ev||newEv()};
   m.chars=o.chars;if(isRemote(o)){o.mercDirty=o.mercDirty||new Set();o.mercDirty.add(m.cls.i)}}
 function cpJoin(p,k){const nm=HERO_LORE[CLASSES[k].id].nm,S=G.npcs.findIndex(n=>n.inn);
-  if(k===p.cls.i)return toast(`${nm} eres tú.`,'#a59cb0');if(heroBusy().has(k))return toast(`${nm} ya anda con alguien del grupo.`,'#a59cb0');
+  if(k===p.cls.i)return toast(`${nm} eres tú.`,'#a59cb0');if(!isRemote(p)&&expBusy(p).has(k))return toast(`${nm} está de expedición.`,'#a59cb0');if(heroBusy().has(k))return toast(`${nm} ya anda con alguien del grupo.`,'#a59cb0');
   const mine=mercsOf(p);if(cpOf(p).length>=MERC_MAX)return toast(`J${p.i+1} ya lleva ${MERC_MAX} héroes. Despide a uno en la posada.`,'#e0a080');
   if(mine.length>=mercMax()){const adv=mine.find(q=>!q.merc.hero);if(!adv)return toast(`J${p.i+1} ya no tiene lugar en el grupo.`,'#e0a080');removePlayer(adv);toast(`${adv.merc.name} vuelve al Gremio para dejarle el lugar a ${nm}.`,'#c9a46a')}
   const m=cpMake(p,k);if(!m)return toast('No queda lugar en el grupo.','#a59cb0');const n=cpGearUp(p,true,m);
@@ -5651,10 +5699,10 @@ function cpJoin(p,k){const nm=HERO_LORE[CLASSES[k].id].nm,S=G.npcs.findIndex(n=>
   toast(`${nm} se une al grupo de J${p.i+1} con su nivel ${m.lvl}${n?` y se puso ${n} cosa${n>1?'s':''} del cofre`:''}.`,m.cls.color)}
 function cpBye(p,k){const m=cpOf(p).find(q=>q.cls.i===k);if(!m)return;cpSync(m);removePlayer(m);mercFlush();toast(`${m.merc.name} vuelve a la posada.`,m.cls.color)}
 function cpRestore(p){const L=Array.isArray(p.cpSave)?p.cpSave:[];p.cpSave=null;for(const k of L){if(cpOf(p).length>=MERC_MAX||mercsOf(p).length>=mercMax())break;if(k===p.cls.i||heroBusy().has(k))continue;cpMake(p,k)}}
-function cpTick(){for(const m of G.players.slice()){if(!m.merc||!m.merc.hero)continue;
+function cpTick(){if(G.allHeroes&&G.map&&!G.map.town){const d=G.allHeroes;G.allHeroes=0;cpAllHeroes(d)}for(const m of G.players.slice()){if(!m.merc||!m.merc.hero)continue;
   if(G.players.some(h=>!h.merc&&h.cls.i===m.cls.i)||!G.players.some(h=>!h.merc&&h.i===m.merc.owner)){cpSync(m);removePlayer(m);toast(`${m.merc.name} se separa del grupo: alguien está jugando con ese héroe.`,m.cls.color)}
   else if(m.pts>(m.ptsKeep|0)){const f=m.hp/m.maxhp;while(m.pts>(m.ptsKeep|0)){m.st[m.pts%3===0?1:m.pts%3===1?0:2]++;m.pts--}recalc(m);m.hp=Math.round(m.maxhp*f)}}}
-function cpXP(m,n,up){const o=G.players.find(q=>q.i===m.merc.owner&&!q.merc);
+function cpXP(m,n,up){if(m.merc.temp)return;const o=G.players.find(q=>q.i===m.merc.owner&&!q.merc);
   // si va por debajo de su dueño, aprende el doble hasta alcanzarlo
   if(o&&m.lvl<o.lvl){m.xp+=n;while(m.xp>=m.next){m.xp-=m.next;m.lvl++;m.next=Math.round(m.next*1.42);m.pts+=PTS_PER_LVL;up=true;recalc(m);m.hp=m.maxhp;m.mp=m.maxmp;ftext(m.x,m.y-26,'¡Nivel '+m.lvl+'!','#f0d24a',18)}}
   if(up){toast(`${m.merc.name} subió a nivel ${m.lvl}.`,m.cls.color);cpSync(m)}}
@@ -5685,17 +5733,17 @@ function cliCpStash(force){if(MODE!=='client'||!G||!G.map||!G.map.town||!ctrls[0
   if(n){autosave(0,true);toast(`Tus héroes tomaron ${n} pieza${n>1?'s':''} del cofre del pueblo.`,'#9be08a')}}
 function cpWClass(p){const L=[p.cls.i,...cpOf(p).map(m=>m.cls.i)];return L[Math.floor(Math.random()*L.length)]}
 // ---------- menús: la posada y la charla con un héroe ----------
-function heroWhere(p,k){const C=CLASSES[k];if(!G)return '';for(const q of G.players){if(q.cls.i!==k)continue;if(!q.merc)return q===p?'Eres tú':`Lo juega J${q.i+1}`;if(q.merc.hero)return q.merc.owner===p.i?'En tu grupo':`Va con J${q.merc.owner+1}`}
+function heroWhere(p,k){const C=CLASSES[k];if(!G)return '';{const e=expAcct(p).ex.find(e=>e.k.includes(k));if(e)return `De expedición (piso ${e.d})`}for(const q of G.players){if(q.cls.i!==k)continue;if(!q.merc)return q===p?'Eres tú':`Lo juega J${q.i+1}`;if(q.merc.hero)return q.merc.owner===p.i?'En tu grupo':`Va con J${q.merc.owner+1}`}
   return isNight()?'En la posada':`De día anda por ${HERO_SPOT[k][3]}`}
 function cpTmp(p,k){const ch=cpChars(p)[k]||defaultChar(k),key=k+':'+ch.lvl+':'+(ch.w&&ch.w.s)+':'+(ch.a&&ch.a.s)+':'+(ch.r&&ch.r.s)+':'+(ch.m&&ch.m.s)+':'+(ch.w&&sumUps(ch.w));const c=cpTmp.c||(cpTmp.c={});if(c[k]&&c[k].key===key)return c[k].t;
   const t=makePlayer(k,96,null);t.chars=cpChars(p).slice();if(!t.chars[k])t.chars[k]=defaultChar(k);loadChar(t,k);c[k]={key,t};return t}
 function dayLeft(){const ph=dayPhase();// noche entre .228 y .772 aprox. (nightA>.2)
   let a=0,n=isNight();for(let s=1;s<=480;s+=4){const q=(ph+s/480)%1,v=clamp(Math.cos(q*Math.PI*2)*-.7+.1,0,.5)>.2;if(v!==n){a=s;break}}return a}
-function drawInnMenu(c,p,r,m){panelBg(r,p,c,'Posada del Farol');const pad=14,iw=r.w-pad*2,bh=BH(),by=r.y+r.h-bh-10,x0=r.x+pad,night=isNight(),left=dayLeft();
+function drawInnMenu(c,p,r,m){panelBg(r,p,c,'Posada del Farol');tabsRow(r,['Héroes','Expediciones'],m.tab|0,k=>{m.tab=k});if((m.tab|0)===1)return drawExpMenu(c,p,r,m);const pad=14,iw=r.w-pad*2,bh=BH(),by=r.y+r.h-bh-10,x0=r.x+pad,night=isNight(),left=dayLeft();
   ctx.textAlign='left';ctx.font='700 12px "Alegreya Sans", sans-serif';ctx.fillStyle=night?'#bfd8ff':'#ffd27a';
-  ctx.fillText(fit(`${night?'Es de noche: los héroes cenan aquí.':'Es de día: los héroes rondan el pueblo.'} ${left?`Cambia en ${Math.ceil(left/60)} min.`:''}`,iw),x0,r.y+56);
-  ctx.font='500 11px "Alegreya Sans", sans-serif';ctx.fillStyle='#a59cb0';ctx.fillText(fit(`Llevas ${cpOf(p).length}/${MERC_MAX} héroes y ${advOf(p).length} aventureros (${mercMax()} lugares en total). Cada héroe pelea con su propio nivel y equipo.`,iw),x0,r.y+72);
-  m.cur=clamp(m.cur|0,0,NCLS-1);const cols=iw>=420?3:2,rows=Math.ceil(NCLS/cols);m.cols=cols;const gy=r.y+82,detH=36,gh=by-detH-8-gy,cw=(iw-6*(cols-1))/cols,ch=Math.max(24,(gh-5*(rows-1))/rows);
+  ctx.fillText(fit(`${night?'Es de noche: los héroes cenan aquí.':'Es de día: los héroes rondan el pueblo.'} ${left?`Cambia en ${Math.ceil(left/60)} min.`:''}`,iw),x0,r.y+86);
+  ctx.font='500 11px "Alegreya Sans", sans-serif';ctx.fillStyle='#a59cb0';ctx.fillText(fit(`Llevas ${cpOf(p).length}/${MERC_MAX} héroes y ${advOf(p).length} aventureros (${mercMax()} lugares en total). Cada héroe pelea con su propio nivel y equipo.`,iw),x0,r.y+101);
+  m.cur=clamp(m.cur|0,0,NCLS-1);const cols=iw>=420?3:2,rows=Math.ceil(NCLS/cols);m.cols=cols;const gy=r.y+108,detH=36,gh=by-detH-8-gy,cw=(iw-6*(cols-1))/cols,ch=Math.max(24,(gh-5*(rows-1))/rows);
   CLASSES.forEach((C,k)=>{const x=x0+(k%cols)*(cw+6),y=gy+Math.floor(k/cols)*(ch+5),sel=k===m.cur,wh=heroWhere(p,k),ok=wh==='En la posada'||wh==='En tu grupo',lv=(cpChars(p)[k]||{}).lvl||1;
     ctx.fillStyle=sel?'#2a1d14':'#1b1822';ctx.fillRect(x,y,cw,ch);ctx.strokeStyle=sel?'#ea8a3c':'#3a3544';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5,cw-1,ch-1);if(sel)selRing(x,y,cw,ch);
     {const s=Math.min(.9,ch/44);ctx.save();ctx.beginPath();ctx.rect(x+1,y+1,30,ch-2);ctx.clip();ctx.globalAlpha=ok||wh==='Eres tú'?1:.5;drawMiniHero(C,x+16,y+ch/2+9*s,s);ctx.restore()}
@@ -5722,6 +5770,70 @@ function drawHeroMenu(c,p,r,m){const k=m.k,C=CLASSES[k],L=HERO_LORE[C.id],nm=L.n
   btn(x0+2*(bw+8),by,bw,bh,`${kl(c,'skl')}${m.back?'Volver':'Salir'}`,()=>{c.menu=m.back?{type:'inn',cur:k}:null},false,false)}
 function heroAct(c,p,m){const mine=cpOf(p).some(q=>q.cls.i===m.k);ctrlAct(c,[mine?'cpbye':'cpjoin',m.k]);if(!mine)c.menu=null}
 function heroGear(c,p){if(MODE==='client')cliCpStash(true);ctrlAct(c,['cpbest'])}
+
+// ================= v0.15: expediciones y los héroes del Abismo =================
+// Expediciones: desde la posada mandas héroes libres a explorar un piso. Vuelven solos (tiempo real) con experiencia y botín.
+// Viven en la cuenta de cada jugador (campo ex), igual que el nivel y el equipo de cada héroe.
+const EXP_MAX=3,EXP_HEROES=4,EXP_MIN=[5,15,45];
+function expAcct(p){if(MODE==='client'){const H=heroes.heroe1;return {chars:H.chars,ex:H.ex||(H.ex=[]),stash:H.stash||(H.stash=[]),maxD:Math.max(H.maxDepth|0,p?p.maxD|0:0,1)}}
+  return {chars:p.chars,ex:p.ex||(p.ex=[]),stash:stashOf(p),maxD:Math.max(1,p.maxD|0)}}
+function expBusy(p){const s=new Set();if(!p)return s;for(const e of expAcct(p).ex)for(const k of e.k)s.add(k);return s}
+function expLocalBusy(){const s=new Set();for(const c of ctrls){const p=ctrlPlayer(c);if(p&&!p.merc)for(const k of expBusy(p))s.add(k)}return s}
+const expLeft=e=>Math.max(0,e.t0+e.m*60000-Date.now());
+// cuánto aprende un héroe en una expedición: por cada 5 minutos, una parte de su próximo nivel según lo difícil que es el piso para él
+function expTrain(c,d,mins){const rec=recLvl(d),cap=rec+5;let lv0=c.lvl;for(let b=0;b<Math.max(1,Math.round(mins/5));b++){if(c.lvl>=cap)break;
+    const f=c.lvl<rec-8?.3:c.lvl<rec?.7:c.lvl<=rec+3?.35:.12;c.xp+=c.next*f;while(c.xp>=c.next&&c.lvl<cap){c.xp-=c.next;c.lvl++;c.next=Math.round(c.next*1.42);c.pts+=PTS_PER_LVL}}
+  if(c.lvl>=cap)c.xp=Math.min(c.xp,c.next-1);return c.lvl-lv0}
+function expSend(c,p,ks,d,mins){const A=expAcct(p);ks=[...new Set(ks)].filter(k=>k>=0&&k<NCLS);if(!ks.length)return 'Elige al menos un héroe.';if(A.ex.length>=EXP_MAX)return `Ya hay ${EXP_MAX} expediciones afuera.`;
+  const busy=new Set([...heroBusy(),...expBusy(p)]);if(ks.some(k=>busy.has(k)))return 'Alguno de esos héroes no está libre.';
+  d=clamp(d|0,1,Math.min(A.maxD,ARENA_AT-1));A.ex.push({k:ks.slice(0,EXP_HEROES),d,t0:Date.now(),m:mins});autosave(0,true);
+  toast(`${ks.map(k=>HERO_LORE[CLASSES[k].id].nm).join(', ')} sale${ks.length>1?'n':''} de expedición al piso ${d}. Vuelve${ks.length>1?'n':''} en ${mins} min.`,'#9be08a');SND.play('portal');return ''}
+// al hablar con Marta: los que ya volvieron entregan lo que traen
+function expClaim(c,p){const A=expAcct(p),done=A.ex.filter(e=>expLeft(e)<=0);if(!done.length)return;A.ex=A.ex.filter(e=>expLeft(e)>0);if(MODE==='client')heroes.heroe1.ex=A.ex;else p.ex=A.ex;
+  for(const e of done){const L=[];for(const k of e.k){const ch=A.chars[k]||(A.chars[k]=defaultChar(k));const up=expTrain(ch,e.d,e.m);L.push(`${HERO_LORE[CLASSES[k].id].nm} ${up?`+${up} nivel${up>1?'es':''} (Nv ${ch.lvl})`:`(Nv ${ch.lvl})`}`);
+      if(MODE==='client')ctrlAct(c,['cpch',k,encChar(ch),encItem(ch.w),encItem(ch.a),ch.r?encItem(ch.r):0,ch.m?encItem(ch.m):0])}
+    const n=Math.min(4,1+Math.floor(e.m/10)),T=rarTop(e.d);let got=0,lost=0;
+    for(let i=0;i<n;i++){const kind=pick([0,1,1,2,3]),it=makeItem(kind,Math.max(0,T-(Math.random()<.6?1:0)),e.d,1,Math.floor(Math.random()*1e9),kind===0?pick(e.k):pick(e.k));if(stashAdd(A.stash,it))got++;else lost++}
+    for(let i=0;i<Math.floor(e.m/10);i++){const g=makeGem(ri(0,e.d>=GEM_NEW_AT?GEM_N-1:3),Math.random()<.25?1:0);if(stashAdd(A.stash,g))got++;else lost++}
+    toast(`Volvió la expedición del piso ${e.d}: ${L.join(', ')}. Trajeron ${got} cosa${got===1?'':'s'} al cofre del pueblo${lost?` (${lost} no cupieron)`:''}.`,'#ffd27a');confetti(p.x,p.y)}
+  autosave(0,true)}
+function drawExpMenu(c,p,r,m){const pad=14,iw=r.w-pad*2,bh=BH(),by=r.y+r.h-bh-10,x0=r.x+pad,A=expAcct(p);let y=r.y+90;
+  ctx.textAlign='left';ctx.font='800 11.5px "Alegreya Sans", sans-serif';ctx.fillStyle='#c9a04a';ctx.fillText(`EXPEDICIONES AFUERA (${A.ex.length}/${EXP_MAX})`,x0,y);
+  if(!A.ex.length){y+=16;ctx.font='500 11.5px "Alegreya Sans", sans-serif';ctx.fillStyle='#7a7184';ctx.fillText('Nadie está afuera ahora.',x0,y)}
+  for(const e of A.ex){y+=16;const l=expLeft(e);ctx.font='600 11.5px "Alegreya Sans", sans-serif';ctx.fillStyle=l?'#ebe3d3':'#9be08a';
+    ctx.fillText(fit(`${e.k.map(k=>HERO_LORE[CLASSES[k].id].nm).join(', ')} · piso ${e.d} · ${l?`vuelven en ${Math.ceil(l/60000)} min`:'¡ya volvieron! Sal y habla otra vez con Marta'}`,iw),x0,y)}
+  y+=22;ctx.font='800 11.5px "Alegreya Sans", sans-serif';ctx.fillStyle='#c9a04a';ctx.fillText('NUEVA EXPEDICIÓN (HASTA 4 HÉROES)',x0,y);y+=6;
+  m.sel=m.sel||[];m.ecur=clamp(m.ecur|0,0,NCLS-1);const busy=new Set([...heroBusy(),...expBusy(p)]),cols=6,cw=(iw-5*5)/cols,ch=28;
+  CLASSES.forEach((C,k)=>{const x=x0+(k%cols)*(cw+5),yy=y+Math.floor(k/cols)*(ch+4),on=m.sel.includes(k),free=!busy.has(k),cur=k===m.ecur;
+    ctx.fillStyle=on?'#22341c':cur?'#2a1d14':'#1b1822';ctx.fillRect(x,yy,cw,ch);ctx.strokeStyle=on?'#9be08a':cur?'#ea8a3c':'#3a3544';ctx.lineWidth=1;ctx.strokeRect(x+.5,yy+.5,cw-1,ch-1);
+    ctx.globalAlpha=free?1:.4;ctx.save();ctx.beginPath();ctx.rect(x+1,yy+1,22,ch-2);ctx.clip();drawMiniHero(C,x+12,yy+ch/2+7,.6);ctx.restore();
+    ctx.textAlign='left';ctx.font='700 10.5px "Alegreya Sans", sans-serif';ctx.fillStyle=C.color;ctx.fillText(fit(HERO_LORE[C.id].nm,cw-26),x+24,yy+12);ctx.font='600 9.5px "Alegreya Sans", sans-serif';ctx.fillStyle='#a59cb0';ctx.fillText(fit(free?`Nv ${(A.chars[k]||{}).lvl||1}`:'ocupado',cw-26),x+24,yy+23);ctx.globalAlpha=1;
+    hit(x,yy,cw,ch,()=>{m.ecur=k;expToggle(m,k,busy)})});
+  y+=2*(ch+4)+8;m.ed=clamp(m.ed||Math.max(1,A.maxD-2),1,Math.min(A.maxD,ARENA_AT-1));m.em=clamp(m.em|0,0,EXP_MIN.length-1);
+  const bw0=34;ctx.font='800 12px "Alegreya Sans", sans-serif';ctx.fillStyle='#ebe3d3';ctx.textAlign='left';ctx.fillText(`Piso ${m.ed}`,x0+bw0+10,y+17);
+  btn(x0,y,bw0,24,'◀',()=>{m.ed=Math.max(1,m.ed-1)},false,m.ed<=1);btn(x0+bw0+70,y,bw0,24,'▶',()=>{m.ed=Math.min(A.maxD,m.ed+1)},false,m.ed>=A.maxD);
+  const dx=x0+bw0*2+90,dw=(iw-(dx-x0)-10)/3;EXP_MIN.forEach((mn,k)=>btn(dx+k*(dw+5),y,dw,24,`${mn} min`,()=>{m.em=k},k===m.em,false));
+  y+=34;const rec=recLvl(m.ed),sel=m.sel.filter(k=>!busy.has(k));const tip=sel.length?sel.map(k=>{const lv=(A.chars[k]||{}).lvl||1;return `${HERO_LORE[CLASSES[k].id].nm} ${lv<rec-8?'sufrirá (aprende algo)':lv<rec?'aprende mucho':lv<=rec+3?'aprende bien':lv>=rec+5?'ya no aprende ahí':'aprende poco'}`}).join(' · '):'Toca los héroes que quieres mandar';
+  para(`Nivel recomendado ${rec}. ${tip}. Traen ${Math.min(4,1+Math.floor(EXP_MIN[m.em]/10))} objetos al cofre del pueblo. El tiempo corre aunque cierres el juego.`,x0,y,iw,15,'500 11.5px "Alegreya Sans", sans-serif','#cfc6d6',by-8);
+  const bw=(iw-8)/2;btn(x0,by,bw,bh,`${kl(c,'pot')}Enviar expedición`,()=>expGo(c,p,m),true,!sel.length||A.ex.length>=EXP_MAX);btn(x0+bw+8,by,bw,bh,`${kl(c,'skl')}Salir`,()=>{c.menu=null},false,false)}
+function expToggle(m,k,busy){m.sel=m.sel||[];if(busy.has(k))return;if(m.sel.includes(k))m.sel=m.sel.filter(x=>x!==k);else if(m.sel.length<EXP_HEROES)m.sel.push(k)}
+function expGo(c,p,m){const busy=new Set([...heroBusy(),...expBusy(p)]),e=expSend(c,p,(m.sel||[]).filter(k=>!busy.has(k)),m.ed,EXP_MIN[m.em|0]);if(e)toast(e,'#e0a080');else m.sel=[]}
+// el invitado le avisa al anfitrión cómo quedó su héroe después de una expedición
+function cpCharIn(p,a){const k=clamp(a[1]|0,0,NCLS-1);if(!isRemote(p)||k===p.cls.i||cpOf(p).some(q=>q.cls.i===k)||typeof a[2]!=='string'&&!Array.isArray(a[2]))return;
+  const dc=decChar(a[2],a[3],a[4],k);dc.r=a[5]?decItem(a[5]):null;dc.m=a[6]?decItem(a[6]):null;dc.ev=(p.chars[k]||{}).ev||newEv();p.chars[k]=dc}
+// ---------- piso final de cada Abismo: bajan todos los héroes a ayudar ----------
+function cpAllHeroes(d){const hum=G.players.filter(q=>!q.merc&&!isOff(q));if(!hum.length)return;const busy=heroBusy(),rec=recLvl(d),T=rarTop(d);let n=0,h=0;
+  for(const C of CLASSES){if(busy.has(C.i))continue;const o=hum[h++%hum.length],used=new Set(G.players.map(q=>q.i));let slot=12;while(used.has(slot))slot++;if(slot>23)break;
+    const m=makePlayer(C.i,slot,null);m.chars=(o.chars||[]).map(x=>x);if(!m.chars[C.i])m.chars[C.i]=defaultChar(C.i);loadChar(m,C.i);m.bag=[];m.stash=[];
+    if(m.lvl<rec-2){const add=rec-2-m.lvl;m.lvl=rec-2;m.st=m.st.slice();const T3=3*add;m.st[0]+=Math.round(T3*.4);m.st[1]+=Math.round(T3*.4);m.st[2]+=T3-2*Math.round(T3*.4)}
+    const better=(k,it)=>{if(itemScore(m,it)>itemScore(m,slotOf(m,k))){if(k===0)m.weapon=it;else if(k===1)m.armor=it;else if(k===2)m.ring=it;else m.amu=it}};
+    for(const k of[0,1,2,3])better(k,makeItem(k,Math.max(0,T-1),d,1.2,Math.floor(Math.random()*1e9),C.i));
+    m.merc={owner:o.i,floors:0,ni:200+C.i,name:HERO_LORE[C.id].nm,hero:1,temp:1};m.pots=[4,2,0,2];recalc(m);m.hp=m.maxhp;m.mp=m.maxmp;const a=n/11*Math.PI*2;m.x=o.x+Math.cos(a)*40;m.y=o.y+Math.sin(a)*40;if(collides(m.x,m.y,11)){m.x=o.x;m.y=o.y}
+    G.players.push(m);n++;burst(m.x,m.y,C.color,10,120)}
+  G.players.sort((a,b)=>a.i-b.i);if(!n)return;
+  for(const e of [...G.enemies,...(G.dormant||[])])if(e.abyA||e.T.boss){e.hp*=1+.18*n;e.maxhp=e.hp}
+  banner('¡Bajan los héroes de Valdoria!',`${n} héroes se suman a la pelea final del Abismo`,3.6);toast(`Los héroes que estaban en la posada bajaron a ayudar contra el jefe del Abismo (${n}). Se van al terminar el piso.`,'#ffd27a');SND.play('lvl')}
+function cpTempOut(){if(!G||!G.players)return;for(const q of G.players.slice())if(q.merc&&q.merc.temp)removePlayer(q)}
 
 // ================= bucle =================
 let last=performance.now(),RDT=0;
